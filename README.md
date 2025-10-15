@@ -29,7 +29,7 @@ Dự án xây dựng một website bán hàng trực tuyến sử dụng Flask, 
 
 2.  **Tạo và kích hoạt môi trường ảo:**
     ```bash ( trong terminal ở VSCODE )
-    cd BTL_PYTHON
+    cd tên dự án
     gõ: python -m venv venv (để tạo mt ảo, tất cả thiết lập chỉ có trong mt ảo, ko ảnh hưởng đến bên ngoài)
     gõ: .\venv\Scripts\activate (kích hoạt mt ảo)
     ```
