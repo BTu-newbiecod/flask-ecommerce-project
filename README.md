@@ -1,4 +1,4 @@
-# 🚀 Dự án Website E-commerce & Chatbot AI
+#  Dự án Website E-commerce & Chatbot AI
 
 Dự án xây dựng một website bán hàng trực tuyến sử dụng Flask, tích hợp chatbot AI (Gemini) để hỗ trợ khách hàng.
 
