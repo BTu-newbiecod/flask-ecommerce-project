@@ -45,7 +45,15 @@ Dự án xây dựng một website bán hàng trực tuyến sử dụng Flask, 
     flask db upgrade
     ```
 
-5.  **Chạy ứng dụng:**
+5. **Chèn dữ liệu mẫu:**
+    ```bash
+    Gõ: python seed.py
+    
+    Sau khi chạy xong, file app.db trên máy của mọi người sẽ có đầy đủ dữ liệu để bắt đầu code giao diện và các tính năng khác.
+    ```
+
+
+6.  **Chạy ứng dụng:**
     ```bash
     flask run
     ```
