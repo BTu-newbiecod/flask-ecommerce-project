@@ -1,0 +1,11 @@
+venv/
+
+__pycache__/
+
+app.db
+instance/
+
+.env
+.flaskenv
+
+.vscode/
