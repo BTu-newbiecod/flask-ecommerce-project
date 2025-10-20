@@ -20,6 +20,58 @@ Dự án xây dựng một website bán hàng trực tuyến sử dụng Flask, 
 
 ---
 
+## Cấu trúc dự án
+```
+flask-ecommerce-project/
+├── app/                  # ứng dụng chính
+│   ├── __init__.py       # Khởi tạo app và đăng ký Blueprints
+│   ├── models.py     
+│   ├── forms.py          
+│   │
+│   ├── static/        
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   ├── js/
+│   │   │   └── main.js
+│   │   └── images/
+│   │
+│   ├── templates/     
+│   │   ├── base.html     
+│   │   ├── index.html   
+│   │   │
+│   │   ├── auth/         
+│   │   │   ├── login.html
+│   │   │   └── register.html
+│   │   │
+│   │   └── admin/        
+│   │       ├── admin_base.html
+│   │       └── products.html
+│   │
+│   ├── main/             # --- Blueprint cho các trang chính ---
+│   │   ├── __init__.py   # tạo blueprint 'main'
+│   │   └── routes.py     # Các route cho trang chủ, chi tiết sản phẩm,...
+│   │
+│   ├── auth/             # --- Blueprint cho xác thực người dùng ---
+│   │   ├── __init__.py   # tạo blueprint 'auth'
+│   │   └── routes.py     # Các route cho login, logout, register,...
+│   │
+│   └── admin/            # --- Blueprint cho trang quản trị ---
+│       ├── __init__.py   # tạo blueprint 'admin'
+│       └── routes.py     # Các route cho quản lý sản phẩm, đơn hàng,...
+│
+├── migrations/        
+├── venv/                 
+│
+├── .gitignore           
+├── config.py            
+├── README.md             # Tài liệu hướng dẫn dự án
+├── requirements.txt      # Danh sách các thư viện cần cài đặt
+├── run.py                # File để chạy ứng dụng
+└── seed.py               # tạo dữ liệu mẫu
+```
+
+---
+
 ##  Hướng dẫn cài đặt
 
 1.  **Lấy code về máy (Clone):**
