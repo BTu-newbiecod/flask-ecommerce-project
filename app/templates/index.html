@@ -8,7 +8,26 @@
 {% endblock %}
 
 {% block content %}
- <!-- Nội dung trang -->
+    <div class="row">
+        {% for product in products%}
+        <div class="col-5th mb-4">
+            <a href="{{ url_for('main.product_detail', id=product.id) }}" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm" style="height: 450px;">
+                <img src="{{ url_for('static', filename='images/product1.jpg') }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text price-text">{{ "{:,.0f}".format(product.price).replace(",", ".") }}đ</p>
+                        {%if product.stock > 0 %}
+                            <p class="stock-text text-success"> Còn hàng </p>
+                        {% else %}
+                            <p class="stock-text text-secondary"> Hết hàng </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
