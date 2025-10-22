@@ -6,6 +6,7 @@ class LoginForm(FlaskForm):
     email=StringField('email',validators=[DataRequired(),Email()])
     password= PasswordField('Mật khẩu',validators=[DataRequired(),Length(min=6,max=100)])
     submit=SubmitField('Đăng nhập')
+    remember_me = BooleanField('Ghi nhớ đăng nhập')
     pass
 
 class RegistrationForm(FlaskForm):

@@ -25,6 +25,7 @@ class Product(db.Model):
     description=db.Column(db.Text)
     price=db.Column(db.Float,nullable=False)
     stock=db.Column(db.Integer,nullable=False,default=0)    
+    img_file=db.Column(db.String(100),nullable=False,default='default.jpg') #THÊM đường dẫn ẢNH
 
 # CHU Y: db.ForeignKey('tên_bảng_viết_thường.tên_cột')
     category_id=db.Column(db.Integer,db.ForeignKey('category.id'),nullable=False)

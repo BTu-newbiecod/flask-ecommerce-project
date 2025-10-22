@@ -1,5 +1,4 @@
 from flask_login import login_required, login_user, logout_user
-from werkzeug.security import generate_password_hash,check_password_hash
 from flask import flash, redirect, render_template, url_for
 from app.forms import RegistrationForm,LoginForm
 from app.models import User
@@ -18,13 +17,11 @@ def register():
         if(User.query.filter_by(username=form.username.data).first()):
             flash('Username đã tồn tại','danger')
             return redirect(url_for('auth.register'))
-       
-        hash_password=generate_password_hash(form.password.data) #ma hoa mk
         
         user=User(
             username=form.username.data, 
             email=form.email.data,
-            password=hash_password
+            password=form.password.data
         )
 
         db.session.add(user)
@@ -40,7 +37,7 @@ def login():
     form=LoginForm()
     if(form.validate_on_submit()):
         user=User.query.filter_by(email=form.email.data).first()
-        if(user is None or not check_password_hash(user.password,form.password.data)):
+        if(user is None or user.password != form.password.data):
             flash('Sai email hoặc mật khẩu','danger')
             return redirect(url_for('auth.login'))
         
@@ -50,7 +47,7 @@ def login():
 
     return render_template('auth/login.html',form=form)
 
-@bp.route('/logout',method=['GET'])
+@bp.route('/logout',methods=['GET'])
 @login_required
 def logout():
     logout_user()

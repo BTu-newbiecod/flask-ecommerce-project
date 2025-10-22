@@ -13,7 +13,7 @@
         <div class="col-5th mb-4">
             <a href="{{ url_for('main.product_detail', id=product.id) }}" class="text-decoration-none text-dark">
                 <div class="card h-100 shadow-sm" style="height: 450px;">
-                <img src="{{ url_for('static', filename='images/product1.jpg') }}" class="card-img-top" alt="{{ product.name }}">
+                <img src="{{ url_for('static', filename='images/products/' + product.img_file) }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text price-text">{{ "{:,.0f}".format(product.price).replace(",", ".") }}đ</p>
