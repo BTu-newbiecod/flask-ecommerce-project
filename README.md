@@ -72,7 +72,17 @@ flask-ecommerce-project/
 
 ---
 
-##  Hướng dẫn cài đặt
+##  Hướng dẫn cài đặt (mỗi khi pull)
+
+     ```pull xong phát là:
+        pip install -r requirements.txt
+        flask db upgrade
+        python seed.py
+    ```
+---
+
+---
+##  Hướng dẫn cài đặt (Lần đầu)
 
 1.  **Lấy code về máy (Clone):**
     ```bash
