@@ -11,13 +11,6 @@ def index():
     products = Product.query.all()
     return render_template("index.html", products = products)
 
-@bp.route("/login")
-def login():
-    return render_template("login.html")
-
-@bp.route("/register")
-def register():
-    return render_template("register.html")
 
 @bp.route('/product/<int:id>')
 def product_detail(id):

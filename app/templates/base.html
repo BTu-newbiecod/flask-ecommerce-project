@@ -30,10 +30,10 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" href="{{ url_for('main.index') }}">Trang Chủ</a>
+                            <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Sản Phẩm</a>
+                            <a class="nav-link {% if request.endpoint == 'main.products' %}active{% endif %}" href="#">Sản Phẩm</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Giỏ Hàng</a>
@@ -63,6 +63,20 @@
             </div>
         </nav>
     </header>
+
+    <!-- NHẬN THÔNG BÁO TỪ FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050; margin-top: 60px;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <main class="container mt-4 mb-4 flex-fill">
         {% block content %}
