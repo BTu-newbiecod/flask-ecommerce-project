@@ -1,8 +1,8 @@
-"""hoan thien toan bo CSDL
+"""Initial migration with all tables
 
-Revision ID: f2292e634b97
+Revision ID: a4281aa0a174
 Revises: 
-Create Date: 2025-10-15 17:01:07.996896
+Create Date: 2025-10-22 08:29:52.854814
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f2292e634b97'
+revision = 'a4281aa0a174'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -56,6 +56,7 @@ def upgrade():
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('price', sa.Float(), nullable=False),
     sa.Column('stock', sa.Integer(), nullable=False),
+    sa.Column('img_file', sa.String(length=100), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['category_id'], ['category.id'], ),
     sa.PrimaryKeyConstraint('id')

@@ -23,12 +23,12 @@ with app.app_context():
     db.session.add_all([user1, user2])
     db.session.commit()
 
-    p1 = Product(name='Áo Thun Basic Trắng', description='Áo thun cotton 100%, thoáng mát.', price=180000, stock=50, category=cat1)
-    p2 = Product(name='Quần Jean Slimfit Xanh Đậm', description='Quần jean co giãn, form ôm.', price=450000, stock=30, category=cat2)
-    p3 = Product(name='Áo Sơ Mi Oxford Trắng', description='Chất liệu vải oxford, lịch sự.', price=350000, stock=25, category=cat3)
-    p4 = Product(name='Áo Thun Polo Đen', description='Áo polo vải cá sấu cao cấp.', price=280000, stock=40, category=cat1)
-    p5 = Product(name='Quần Jean Rách Gối', description='Phong cách cá tính, năng động.', price=520000, stock=15, category=cat2)
-    p6 = Product(name='Thắt Lưng Da Bò', description='Thắt lưng da bò thật, khóa kim loại.', price=250000, stock=60, category=cat4)
+    p1 = Product(name='Áo Thun Basic Trắng', description='Áo thun cotton 100%, thoáng mát.', price=180000, stock=50, category=cat1,img_file='ao_thun_basic_trang.jpg')
+    p2 = Product(name='Quần Jean Slimfit Xanh Đậm', description='Quần jean co giãn, form ôm.', price=450000, stock=30, category=cat2, img_file='jean_slimfit.jpg')
+    p3 = Product(name='Áo Sơ Mi Oxford Trắng', description='Chất liệu vải oxford, lịch sự.', price=350000, stock=25, category=cat3, img_file='ao_so_mi_trang.jpg')
+    p4 = Product(name='Áo Thun Polo Đen', description='Áo polo vải cá sấu cao cấp.', price=280000, stock=40, category=cat1, img_file='ao_polo_den.jpg')
+    p5 = Product(name='Quần Jean Rách Gối', description='Phong cách cá tính, năng động.', price=520000, stock=15, category=cat2, img_file='jean_rach_goi.jpg')
+    p6 = Product(name='Thắt Lưng Da Bò', description='Thắt lưng da bò thật, khóa kim loại.', price=250000, stock=60, category=cat4, img_file='that_lung_da_bo.jpg')
     db.session.add_all([p1, p2, p3, p4, p5, p6])
     db.session.commit()
 

@@ -12,59 +12,6 @@
         body {
             padding-top: 60px;
         }
-
-        /* index.html css */
-        .col-5th {
-            flex: 0 0 20%;
-            max-width: 20%;
-        }
-
-        .card-body p, .card-body h5 {
-            margin-bottom: 0.3rem;
-        }
-        
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: 0.2s ease;
-        }
-
-        .card-title {
-            display: -webkit-box;
-            -webkit-line-clamp: 1;      
-            line-clamp: 1;  
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;    
-            height: 1.67rem;                
-            line-height: 1.5rem;  
-            font-size: 1.2rem;    
-
-            margin-bottom: 0.3rem;
-        }
-
-        .card-img-top {
-            border-radius: 8px;
-            padding: 4px;
-        }
-
-        .card-text {
-            margin-bottom: 0.2rem;
-        }
-
-        .price-text {
-            color: #e60000;   
-            font-weight: 500;   
-            font-size: 1.36rem;    
-
-            margin-bottom: 0rem !important;
-        }
-
-        .stock-text {
-            margin-top: 0rem !important;
-        }
-        /* end index.html css */
-
     </style>
     <!-- Tùy chỉnh CSS -->
     {% endblock %}
@@ -83,22 +30,53 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">Trang Chủ</a>
+                            <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Sản Phẩm</a>
+                            <a class="nav-link {% if request.endpoint == 'main.products' %}active{% endif %}" href="#">Sản Phẩm</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Giỏ Hàng</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Đăng Nhập</a>
-                        </li>
+
+                        {% if current_user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Chào, {{ current_user.username }}!
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#">Hồ sơ</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.login') }}">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.register') }}">Đăng ký</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
+    <!-- NHẬN THÔNG BÁO TỪ FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050; margin-top: 60px;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <main class="container mt-4 mb-4 flex-fill">
         {% block content %}

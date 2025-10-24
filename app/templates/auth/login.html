@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng nhập{% endblock %}
+
+{% block head_css %}
+    {{ super() }}
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='assets/images/bg-login.png') }}");
+            background-size: cover;
+            background-position: center 50px;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .card { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); }
+        .login-text { color: black !important; font-weight: 400; }
+        .form-control::placeholder { opacity: 0.65; }
+        .form-control:focus { border-color: #1f1919 !important; box-shadow: 0 0 0 0.2rem rgba(96, 86, 86, 0.25) !important; }
+        .register-line { color:rgb(177, 177, 177); font-size: 0.95rem; font-weight: 400; }
+        button:disabled { opacity: 0.75 !important; cursor: not-allowed !important; pointer-events: none !important; background-color: #282626; }
+        .error-msg { display: block; min-height: 18px; font-size: 0.9rem; margin-top: 2px; margin-left: 5px; color: #dc3545; visibility: hidden; opacity: 0; transition: opacity 0.25s ease; }
+        .error-msg.show { visibility: visible; opacity: 1; }
+        .login-button-link { background-color: #151413 !important; }
+        .login-button-link:hover { background-color: #1d1616 !important; }
+        .register-button-link { color: #e95656; }
+        .register-button-link:hover{ color: #dc1616 !important; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-end" style="margin-top: 4.5rem; margin-right: 5rem;">
+        <div class="col-md-5" style="width: 30%;">
+            <div class="card shadow-sm border-0 rounded-4" style="height: auto;">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4 text-primary login-text">Đăng nhập</h3>
+                    
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        {{ form.hidden_tag() }} <div class="mb-2" style="margin-top: 2.5rem">
+                            {{ form.email(class="form-control", id="emailInput", placeholder="Email", required=true) }}
+                            <small id="emailError" class="text-danger error-msg">
+                                Vui lòng điền vào mục này!
+                            </small>
+                        </div>
+                        
+                        <div class="mb-2">
+                            {{ form.password(class="form-control", id="passwordInput", placeholder="Mật khẩu", required=true) }}
+                            <small id="passwordError" class="text-danger error-msg">
+                                Vui lòng điền vào mục này!
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3" style="margin-bottom: 0rem !important">
+                            {{ form.submit(class="btn btn-primary w-100 login-button-link", id="loginBtn") }}
+                        </div>
+                        
+                        <div class="mb-4" style="text-align: left;">
+                            <a href="#" class="btn btn-link p-0" style="font-size: small">Quên mật khẩu</a>
+                        </div>
+
+                        <div class="text-center mb-4 register-line"> Bạn mới biết đến PyPy Store? 
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-link align-baseline p-0 register-button-link">Đăng ký</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const emailInput = document.getElementById("emailInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const loginBtn = document.getElementById("loginBtn");
+
+        loginBtn.disabled = true;
+
+        function checkInputs() {
+            const hasEmail = emailInput.value.trim() !== "";
+            const hasPassword = passwordInput.value.trim() !== "";
+
+            loginBtn.disabled = !(hasEmail && hasPassword);
+
+            const emailError = document.getElementById("emailError");
+            if (document.activeElement === emailInput && !hasEmail) {
+                emailError.classList.add("show");
+            } else if (hasEmail) {
+                emailError.classList.remove("show");
+            }
+
+            const passwordError = document.getElementById("passwordError");
+            if (document.activeElement === passwordInput && !hasPassword) {
+                passwordError.classList.add("show");
+            } else if (hasPassword) {
+                passwordError.classList.remove("show");
+            }
+        }
+
+        emailInput.addEventListener("input", checkInputs);
+        passwordInput.addEventListener("input", checkInputs);
+    </script>
+{% endblock %}
