@@ -82,7 +82,6 @@
 
             loginBtn.disabled = !(hasEmail && hasPassword);
 
-            // Giữ nguyên logic hiển thị lỗi của bạn frontend
             const emailError = document.getElementById("emailError");
             if (document.activeElement === emailInput && !hasEmail) {
                 emailError.classList.add("show");

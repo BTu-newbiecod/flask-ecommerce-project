@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Đăng ký{% endblock %}
+{% block title %}Đăng ký{% endblock %}
 
 {% block head_css %}
     {{ super() }}
@@ -32,30 +32,29 @@
         <div class="col-md-5" style="width: 30%;">
             <div class="card shadow-sm border-0 rounded-4" style="height: auto;">
                 <div class="card-body p-4">
-                    <h3 class="text-center mb-4 text-primary register-text">Đăng ký</h3>
+                    <h3 class="text-center mb-4 text-primary register-text">Đăng ký</h3>
                     
                     <form method="POST" action="{{ url_for('auth.register') }}">
-                        {{ form.hidden_tag() }}
-
-                        <!-- Email -->
-                        <div class="mb-2" style="margin-top: 2.5rem;">
+                        {{ form.hidden_tag() }} <div class="mb-2" style="margin-top: 1rem;">
+                           {{ form.username(class="form-control", id="usernameInput", placeholder="Tên đăng nhập", required=true) }}
+                           <small id="usernameError" class="text-danger error-msg">Vui lòng điền vào mục này!</small>
+                        </div>
+                        
+                        <div class="mb-2">
                             {{ form.email(class="form-control", id="emailInput", placeholder="Email", required=true) }}
                             <small id="emailError" class="text-danger error-msg">Vui lòng điền vào mục này!</small>
                         </div>
 
-                        <!-- Mật khẩu -->
                         <div class="mb-2">
                             {{ form.password(class="form-control", id="passwordInput", placeholder="Mật khẩu", required=true) }}
                             <small id="passwordError" class="text-danger error-msg">Vui lòng điền vào mục này!</small>
                         </div>
 
-                        <!-- Nhập lại mật khẩu -->
                         <div class="mb-3">
                             {{ form.confirm_password(class="form-control", id="confirmPasswordInput", placeholder="Nhập lại mật khẩu", required=true) }}
                             <small id="confirmPasswordError" class="text-danger error-msg">Mật khẩu không khớp!</small>
                         </div>
 
-                        <!-- Nút đăng ký -->
                         <div class="mb-3">
                             {{ form.submit(class="btn btn-primary w-100 register-button-link", id="registerBtn") }}
                         </div>
@@ -73,41 +72,45 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    const emailInput = document.getElementById("emailInput");
-    const passwordInput = document.getElementById("passwordInput");
-    const confirmPasswordInput = document.getElementById("confirmPasswordInput");
-    const registerBtn = document.getElementById("registerBtn");
+    <script>
+        const usernameInput = document.getElementById("usernameInput");
+        const emailInput = document.getElementById("emailInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+        const registerBtn = document.getElementById("registerBtn");
 
-    registerBtn.disabled = true;
+        registerBtn.disabled = true;
 
-    function checkInputs() {
-        const hasEmail = emailInput.value.trim() !== "";
-        const hasPassword = passwordInput.value.trim() !== "";
-        const hasConfirmPassword = confirmPasswordInput.value.trim() !== "";
-        const matchPassword = passwordInput.value === confirmPasswordInput.value;
+        function checkInputs() {
+            const hasUsername = usernameInput.value.trim() !== "";
+            const hasEmail = emailInput.value.trim() !== "";
+            const hasPassword = passwordInput.value.trim() !== "";
+            const hasConfirmPassword = confirmPasswordInput.value.trim() !== "";
+            const matchPassword = passwordInput.value === confirmPasswordInput.value;
 
-        const emailError = document.getElementById("emailError");
-        const passwordError = document.getElementById("passwordError");
-        const confirmPasswordError = document.getElementById("confirmPasswordError");
+            // chỉ thêm username
+            const usernameError = document.getElementById("usernameError");
+            if (document.activeElement === usernameInput && !hasUsername) usernameError.classList.add("show");
+            else usernameError.classList.remove("show");
+            
+            const emailError = document.getElementById("emailError");
+            if (document.activeElement === emailInput && !hasEmail) emailError.classList.add("show");
+            else emailError.classList.remove("show");
 
-        // Kiem tra email trong
-        if (document.activeElement === emailInput && !hasEmail) emailError.classList.add("show");
-        else emailError.classList.remove("show");
+            const passwordError = document.getElementById("passwordError");
+            if (document.activeElement === passwordInput && !hasPassword) passwordError.classList.add("show");
+            else passwordError.classList.remove("show");
 
-        // Kiem tra mat khau trong
-        if (document.activeElement === passwordInput && !hasPassword) passwordError.classList.add("show");
-        else passwordError.classList.remove("show");
+            const confirmPasswordError = document.getElementById("confirmPasswordError");
+            if (!matchPassword && hasConfirmPassword) confirmPasswordError.classList.add("show");
+            else confirmPasswordError.classList.remove("show");
 
-        // Kiem tra xac nhan mat khau
-        if (!matchPassword && hasConfirmPassword) confirmPasswordError.classList.add("show");
-        else confirmPasswordError.classList.remove("show");
+            registerBtn.disabled = !(hasUsername && hasEmail && hasPassword && hasConfirmPassword && matchPassword);
+        }
 
-        registerBtn.disabled = !(hasEmail && hasPassword && hasConfirmPassword && matchPassword);
-    }
-
-    emailInput.addEventListener("input", checkInputs);
-    passwordInput.addEventListener("input", checkInputs);
-    confirmPasswordInput.addEventListener("input", checkInputs);
-</script>
+        usernameInput.addEventListener("input", checkInputs);
+        emailInput.addEventListener("input", checkInputs);
+        passwordInput.addEventListener("input", checkInputs);
+        confirmPasswordInput.addEventListener("input", checkInputs);
+    </script>
 {% endblock %}
