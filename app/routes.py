@@ -12,7 +12,7 @@ def index():
     return render_template("index.html", products = products)
 
 
-@bp.route('/product/<int:id>')
-def product_detail(id):
+@bp.route('/product-<int:id>-<string:slug>')
+def product_detail(id, slug):
     product = Product.query.get_or_404(id)
     return render_template('product_detail.html', product=product)

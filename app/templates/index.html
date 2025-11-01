@@ -63,7 +63,7 @@
     <div class="row">
         {% for product in products%}
         <div class="col-5th mb-4">
-            <a href="{{ url_for('main.product_detail', id=product.id) }}" class="text-decoration-none text-dark">
+            <a href="{{ url_for('main.product_detail', id=product.id, slug=product.name|replace(' ', '-')) }}" class="text-decoration-none text-dark">
                 <div class="card h-100 shadow-sm" style="height: 450px;">
                 <img src="{{ url_for('static', filename='images/products/' + product.img_file) }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
