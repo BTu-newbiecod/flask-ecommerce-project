@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Trang quản trị{% endblock %}
+
+{% block head_css %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+  <div class="row g-4">
+
+    <!-- Doanh thu tháng hiện tại -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm">
+        <h5>Doanh thu tháng hiện tại</h5>
+        <h2>{{ revenue_current_month | default(0) }} VNĐ</h2>
+      </div>
+    </div>
+
+    <!-- Đơn hàng Pending -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm">
+        <h5>Đơn hàng chờ xử lý</h5>
+        {% if pending_orders %}
+        <ul class="list-group list-group-flush">
+          {% for order in pending_orders %}
+          <li class="list-group-item">
+            ID: {{ order.id }} - {{ order.customer.username }} - {{ order.total_amount }} VNĐ
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Không có đơn hàng chờ xử lý.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Kho hàng / Sản phẩm theo danh mục -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm">
+        <h5>Sản phẩm trong kho</h5>
+        {% if product_counts %}
+        <ul class="list-group list-group-flush">
+          {% for category, count in product_counts %}
+          <li class="list-group-item">{{ category }}: {{ count }} sản phẩm</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Chưa có sản phẩm trong kho.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Đơn hàng Shipping -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm">
+        <h5>Đơn hàng đang vận chuyển</h5>
+        {% if shipping_orders %}
+        <ul class="list-group list-group-flush">
+          {% for order in shipping_orders %}
+          <li class="list-group-item">
+            ID: {{ order.id }} - {{ order.customer.username }} - {{ order.total_amount }} VNĐ - {{ order.order_date}} 
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Không có đơn hàng đang vận chuyển.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

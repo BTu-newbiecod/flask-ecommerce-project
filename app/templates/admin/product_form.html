@@ -1,0 +1,46 @@
+<form id="product-form">
+  <div class="mb-2">
+    <label>Tên sản phẩm</label>
+    <input type="text" class="form-control" id="name" 
+           value="{{ product.name if product else '' }}">
+  </div>
+
+  <div class="mb-2">
+    <label>Mô tả</label>
+    <textarea class="form-control" id="description">{{ product.description if product else '' }}</textarea>
+  </div>
+
+  <div class="mb-2">
+    <label>Giá</label>
+    <input type="number" class="form-control" id="price" 
+           value="{{ product.price if product else '' }}">
+  </div>
+
+  <div class="mb-2">
+    <label>Số lượng trong kho</label>
+    <input type="number" class="form-control" id="stock" 
+           value="{{ product.stock if product else '' }}">
+  </div>
+
+  <div class="mb-2">
+    <label>Ảnh</label>
+    {% if product %}
+    <img src="{{ url_for('static', filename='images/products/' ~ product.img_file) }}" 
+         alt="{{ product.name }}" class="img-thumbnail mb-2" style="width:120px; height:120px;">
+    {% endif %}
+    <input type="file" class="form-control" id="img_file">
+  </div>
+
+  <div class="mb-2">
+    <label>Loại</label>
+    <select class="form-control" id="category">
+      {% for c in categories %}
+      <option value="{{ c.id }}" {% if product and product.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="d-grid mt-3">
+    <button type="submit" class="btn btn-dark" id="form-action-btn"></button>
+  </div>
+</form>

@@ -42,8 +42,11 @@ def login():
             return redirect(url_for('auth.login'))
         
         login_user(user)#HÀM THÔNG MINH CỦA FLASK_LOGIN, giúp quản lý session
-        flash('Đăng nhập thành công! Chào mừng bạn đến ONLINE-SHOP','success')
-        return redirect(url_for('main.index')) #CHU Y
+        flash('Đăng nhập thành công! Chào mừng bạn đến Pypy Store','success')
+        if user.email == "admin@shop.com":
+            return redirect(url_for('admin.dashboard'))  
+        else:
+            return redirect(url_for('main.index'))  
 
     return render_template('auth/login.html',form=form)
 

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý sản phẩm{% endblock %}
+
+{% block content %}
+<div class="container mt-3 pt-3">
+  <div class="row">
+
+    <!-- Nửa trái: danh sách sản phẩm -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm">
+        <h5 class="mb-3 text-center">Tất cả sản phẩm</h5>
+        {% if products %}
+        <ul class="list-group list-group-flush">
+          {% for product in products %}
+          <li class="list-group-item d-flex justify-content-between align-items-center product-item"
+              data-id="{{ product.id }}">
+            <div>
+              <strong>{{ product.name }}</strong><br>
+              Giá: {{ product.price }} VNĐ<br>
+              Tồn kho: {{ product.stock }}
+            </div>
+            <img src="{{ url_for('static', filename='images/products/' ~ product.img_file) }}" 
+                 alt="{{ product.name }}" class="img-thumbnail" style="width: 80px; height: 80px;">
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center">Chưa có sản phẩm nào.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Nửa phải: thao tác -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm">
+        <h5 class="mb-3 text-center">Thao tác</h5>
+
+        <!-- Nút thao tác chia đều -->
+        <div class="d-flex gap-2 mb-3">
+          <button type="button" class="btn btn-dark flex-fill" id="btn-add">Thêm</button>
+          <button type="button" class="btn btn-dark flex-fill" id="btn-edit">Sửa</button>
+          <button type="button" class="btn btn-dark flex-fill" id="btn-delete">Xóa</button>
+        </div>
+
+        <!-- Nhắc chọn sản phẩm -->
+        <p id="select-message" class="text-center mb-3" style="display:none;">
+            Chọn sản phẩm bên trái để thao tác.
+        </p>
+
+        <!-- Form sản phẩm -->
+        <div id="form-container" style="display:none;"></div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btnAdd = document.getElementById('btn-add');
+  const btnEdit = document.getElementById('btn-edit');
+  const btnDelete = document.getElementById('btn-delete');
+  const productItems = document.querySelectorAll('.product-item');
+  const formContainer = document.getElementById('form-container');
+  const selectMessage = document.getElementById('select-message');
+
+  let currentMode = 'add'; // add | edit | delete
+
+  function enableInputs(enable=true) {
+    const inputs = formContainer.querySelectorAll('input, textarea, select');
+    inputs.forEach(i => i.disabled = !enable);
+  }
+
+  //Chỉnh sửa nút dưới product_form theo thao tác
+  function updateFormButton(mode) {
+    const btn = formContainer.querySelector('#form-action-btn');
+    if(!btn) return;
+    if(mode === 'add') btn.textContent = 'Thêm';
+    else if(mode === 'edit') btn.textContent = 'Sửa';
+    else if(mode === 'delete') btn.textContent = 'Xóa';
+  }
+
+  // Thêm: hiện form rỗng
+  btnAdd.addEventListener('click', () => {
+    currentMode = 'add';
+    selectMessage.style.display = 'none';
+    fetch('/admin/product_form/0')
+      .then(res => res.text())
+      .then(html => {
+        formContainer.innerHTML = html;
+        formContainer.style.display = 'block';
+        enableInputs(true);
+        updateFormButton(currentMode);
+      });
+  });
+
+  // Sửa/Xóa: ẩn form, hiển thị nhắc chọn sản phẩm
+  [btnEdit, btnDelete].forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentMode = btn.id === 'btn-edit' ? 'edit' : 'delete';
+      formContainer.style.display = 'none';
+      selectMessage.style.display = 'block';
+    });
+  });
+
+  // Click sản phẩm bên trái
+  productItems.forEach(item => {
+    item.addEventListener('click', () => {
+      if(currentMode === 'add') return; // Add load form rỗng
+      const productId = item.dataset.id;
+      fetch(`/admin/product_form/${productId}`)
+        .then(res => res.text())
+        .then(html => {
+          formContainer.innerHTML = html;
+          formContainer.style.display = 'block';
+          selectMessage.style.display = 'none';
+          enableInputs(currentMode === 'edit'); // edit enable, delete disable
+          updateFormButton(currentMode);
+        })
+        .catch(err => console.error(err));
+    });
+  });
+});
+</script>
+{% endblock %}
