@@ -9,10 +9,14 @@
         background-color: #f5f5f5 !important;
     }
 
+    .mt-4 {
+        margin-top: 0rem !important;
+    }
+
     .product-page {
         display: flex;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 0px !important;
         padding: 0rem 0;
         min-height: calc(100vh - 200px);
         background-color: #f5f5f5;
@@ -24,8 +28,8 @@
         gap: 2.5rem;
         padding: 2.5rem 3rem;
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08); /* nổi hơn, tự nhiên */
         width: 100%;
         max-width: 1100px;
     }
@@ -35,9 +39,10 @@
         width: 450px;
         height: 450px;
         object-fit: contain; 
-        border-radius: 8px;
-        background-color: #eeeeee;
-        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #fafafa;
+        padding: 0.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
 
@@ -46,39 +51,100 @@
         padding-left: 2rem;
     }
 
+    .product-info > *:not(:last-child) {
+        margin-bottom: 1.5rem;
+    }
+
     .product-info h2 {
-        font-size: 1.9rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #222;
+        margin-bottom: 2.5rem !important;
+        border-bottom: 2px solid #f1f1f1;
+        display: inline-block;
+        padding-bottom: 0.3rem;
     }
 
     .product-price {
         color: #e60000;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 1.2rem;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        padding: 5px 0px 5px 20px;
+        background-color: #ffecec;
+        margin-bottom: 3rem !important;
     }
+
 
     .product-description {
         font-size: 1.05rem;
-        color: #555;
         line-height: 1.8;
+        margin-bottom: 1rem;
     }
+
+    .product-description .desc-label {
+        color: #888;       
+        font-weight: 400; 
+        margin-right: 0.3rem;
+    }
+
+    .product-description .desc-text {
+        color: #222;         
+        font-weight: 500;   
+    }
+
 
     .btn-buy {
         margin-top: 1.8rem;
         background-color: #ee4d2d;
         color: #fff;
         border: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
+        padding: 1rem 2.5rem;
+        border-radius: 10px;
         font-weight: 600;
-        font-size: 1.05rem;
-        transition: background-color 0.2s;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+        transition: all 0.25s ease;
+        box-shadow: 0 3px 8px rgba(238, 77, 45, 0.3);
     }
 
     .btn-buy:hover {
         background-color: #d8431c;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(238, 77, 45, 0.4);
+    }
+
+    .product-page {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        padding: 0rem 0;
+        min-height: calc(100vh - 200px);
+        background-color: #f5f5f5;
+    }
+
+    .product-wrapper {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .breadcrumb {
+        align-self: flex-start;
+        font-size: 0.95rem;
+        margin: 0.75rem 0 0.5rem 0;
+        color: #666;
+    }
+
+    .breadcrumb a {
+        color: #ee4d2d;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
     }
 
     @media (max-width: 992px) {
@@ -89,29 +155,54 @@
             padding: 1.5rem;
         }
         .product-detail img {
-            width: 100%;
+            width: 80%;
             height: auto;
         }
-        .product-info {
-            padding-left: 0;
+        .product-info h2 {
+            font-size: 1.6rem;
+        }
+        .product-price {
+            font-size: 1.5rem;
         }
     }
+
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="product-page">
-    <div class="product-detail">
-        <img src="{{ url_for('static', filename='images/products/' + product.img_file) }}" alt="{{ product.name }}">
-        
-        <div class="product-info">
-            <h2>{{ product.name }}</h2>
-            <div class="product-price">{{ "{:,.0f}".format(product.price) }}₫</div>
-            <p class="product-description">
-                {{ product.description or "Chưa có mô tả cho sản phẩm này." }}
-            </p>
-            <button class="btn-buy">Thêm vào giỏ hàng</button>
+    <div class="product-wrapper">
+        <div class="breadcrumb mb-3">
+            <a href="{{ url_for('main.index') }}" class="text-danger">Trang chủ </a> &nbsp;>&nbsp;
+            <span>{{ product.name }}</span>
+        </div>
+
+        <div class="product-detail">
+            <img src="{{ url_for('static', filename='images/products/' + product.img_file) }}" alt="{{ product.name }}">
+            
+            <div class="product-info">
+                <h2>{{ product.name }}</h2>
+                <div class="product-price">{{ "{:,.0f}".format(product.price) }}₫</div>
+                <p class="product-description">
+                    <span class="desc-label">Mô tả sản phẩm:</span>
+                    <span class="desc-text">{{ product.description or "Chưa có mô tả cho sản phẩm này." }}</span>
+                </p>
+                {%if product.stock > 0 %}
+                    <p class="product-description">
+                        <span class="desc-label">Số lượng:</span>
+                        <span class="desc-text">{{ product.stock}} sản phẩm có sẵn</span>
+                    </p>
+                {% else %}
+                    <p class="product-description">
+                        <span class="desc-label">Số lượng:</span>
+                        <span class="desc-text">Hết hàng</span>
+                    </p>
+                {% endif %}
+                <button class="btn-buy">Thêm vào giỏ hàng</button>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
+
