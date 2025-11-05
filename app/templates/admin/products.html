@@ -38,9 +38,9 @@
 
         <!-- Nút thao tác chia đều -->
         <div class="d-flex gap-2 mb-3">
-          <button type="button" class="btn btn-dark flex-fill" id="btn-add">Thêm</button>
-          <button type="button" class="btn btn-dark flex-fill" id="btn-edit">Sửa</button>
-          <button type="button" class="btn btn-dark flex-fill" id="btn-delete">Xóa</button>
+          <button type="button" class="btn btn-secondary flex-fill" id="btn-add">Thêm</button>
+          <button type="button" class="btn btn-secondary flex-fill" id="btn-edit">Sửa</button>
+          <button type="button" class="btn btn-secondary flex-fill" id="btn-delete">Xóa</button>
         </div>
 
         <!-- Nhắc chọn sản phẩm -->
@@ -56,6 +56,26 @@
 
   </div>
 </div>
+<!-- Modal xác nhận xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex align-items-center gap-3">
+        <img id="delete-product-img" src="" alt="Hình sản phẩm" style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
+        <span>Bạn có chắc muốn xóa sản phẩm <strong id="delete-product-name"></strong> không?</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-danger" id="confirm-delete-btn">Xóa</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -68,26 +88,41 @@ document.addEventListener('DOMContentLoaded', function() {
   const formContainer = document.getElementById('form-container');
   const selectMessage = document.getElementById('select-message');
 
-  let currentMode = 'add'; // add | edit | delete
+  const deleteModalEl = document.getElementById('deleteModal');
+  const deleteModal = new bootstrap.Modal(deleteModalEl);
+  const deleteProductName = document.getElementById('delete-product-name');
+  const deleteProductImg = document.getElementById('delete-product-img');
+  let selectedProductId = null;
+
+  let currentMode = 'add';
 
   function enableInputs(enable=true) {
     const inputs = formContainer.querySelectorAll('input, textarea, select');
     inputs.forEach(i => i.disabled = !enable);
   }
 
-  //Chỉnh sửa nút dưới product_form theo thao tác
   function updateFormButton(mode) {
     const btn = formContainer.querySelector('#form-action-btn');
     if(!btn) return;
-    if(mode === 'add') btn.textContent = 'Thêm';
-    else if(mode === 'edit') btn.textContent = 'Sửa';
-    else if(mode === 'delete') btn.textContent = 'Xóa';
+    btn.textContent = mode === 'add' ? 'Thêm' : mode === 'edit' ? 'Sửa' : 'Xóa';
   }
 
-  // Thêm: hiện form rỗng
+  // Hiệu ứng đậm nút
+  const modeButtons = [btnAdd, btnEdit, btnDelete];
+  function highlightButton(selectedBtn) {
+    modeButtons.forEach(btn => {
+      btn.classList.remove('btn-dark');
+      btn.classList.add('btn-secondary'); // mờ mặc định
+    });
+    selectedBtn.classList.remove('btn-secondary');
+    selectedBtn.classList.add('btn-dark');
+  }
+
+  // Thêm sản phẩm
   btnAdd.addEventListener('click', () => {
     currentMode = 'add';
     selectMessage.style.display = 'none';
+    highlightButton(btnAdd);
     fetch('/admin/product_form/0')
       .then(res => res.text())
       .then(html => {
@@ -98,32 +133,66 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   });
 
-  // Sửa/Xóa: ẩn form, hiển thị nhắc chọn sản phẩm
+  // Sửa/Xóa
   [btnEdit, btnDelete].forEach(btn => {
     btn.addEventListener('click', () => {
       currentMode = btn.id === 'btn-edit' ? 'edit' : 'delete';
       formContainer.style.display = 'none';
       selectMessage.style.display = 'block';
+      highlightButton(btn);
     });
   });
 
-  // Click sản phẩm bên trái
+  // Click sản phẩm
   productItems.forEach(item => {
     item.addEventListener('click', () => {
-      if(currentMode === 'add') return; // Add load form rỗng
       const productId = item.dataset.id;
+      const productName = item.querySelector('strong').textContent;
+      const productImgSrc = item.querySelector('img').src;
+
+      if(currentMode === 'delete') {
+        selectedProductId = productId;
+        deleteProductName.textContent = productName;
+        deleteProductImg.src = productImgSrc;
+        deleteModal.show();
+        return;
+      }
+
+      if(currentMode === 'add') return;
+
+      // edit
       fetch(`/admin/product_form/${productId}`)
         .then(res => res.text())
         .then(html => {
           formContainer.innerHTML = html;
           formContainer.style.display = 'block';
           selectMessage.style.display = 'none';
-          enableInputs(currentMode === 'edit'); // edit enable, delete disable
+          enableInputs(currentMode === 'edit');
           updateFormButton(currentMode);
         })
         .catch(err => console.error(err));
     });
   });
+
+  // Xác nhận xóa
+  document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+    if(selectedProductId) {
+      fetch(`/admin/delete_product/${selectedProductId}`, { method: 'POST' })
+        .then(res => {
+          if(res.ok) {
+            const item = document.querySelector(`.product-item[data-id="${selectedProductId}"]`);
+            if(item) item.remove();
+            deleteModal.hide();
+            selectedProductId = null;
+          } else {
+            alert('Xóa thất bại!');
+          }
+        })
+        .catch(err => console.error(err));
+    }
+  });
+
 });
+
 </script>
 {% endblock %}
