@@ -1,4 +1,5 @@
-from flask import render_template, redirect, url_for, Blueprint
+from app.forms import ProductForm
+from flask import render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from app.admin import bp
 from functools import wraps
@@ -14,6 +15,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# Trang doanh thu
 @bp.route('/dashboard')
 @login_required
 @admin_required
@@ -56,13 +58,45 @@ def products():
     products = Product.query.order_by(Product.id.desc()).all()  
     return render_template('admin/products.html', products=products)
 
-@bp.route('/product_form/<int:product_id>')
+@bp.route('/product_form/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
-def product_form(product_id):
-    if product_id == 0:
-        # Trả về form rỗng cho thêm mới
-        return render_template('admin/product_form.html', product=None, categories=Category.query.all())
-    product = Product.query.get_or_404(product_id)
-    return render_template('admin/product_form.html', product=product, categories=Category.query.all())
+def product_form(id):
+    product = Product.query.get(id) if id != 0 else None 
+    form = ProductForm(obj=product)
+    print('OK')
+
+    if form.validate_on_submit():
+        if product: 
+            product.name = form.name.data 
+            product.description = form.description.data 
+            product.price = form.price.data 
+            product.stock = form.stock.data 
+            product.img_file = form.img_file.data or 'default.png'
+            flash('Cập nhật sản phẩm thành công', 'success')
+
+        else:
+            new_product = Product(
+                name = form.name.data,
+                description = form.description.data,
+                price = form.price.data,
+                stock = form.stock.data,
+                img_file = form.img_file.data or 'default.png'
+            )
+            db.session.add(new_product)
+            flash('Thêm sản phẩm thành công', 'success')
+        
+        db.session.commit()
+        return redirect(url_for('admin.products'))
+    return render_template('admin/product_form.html', form=form, product=product)
+
+# Xoa san pham
+@bp.route('/delete_product/<int:id>', methods=['POST'])
+@admin_required
+@login_required
+def delete_product(id):
+    product = Product.query.get_or_404(id)
+    db.session.delete(product)
+    db.session.commit()
+    return ('', 204)
 

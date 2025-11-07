@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     currentMode = 'add';
     selectMessage.style.display = 'none';
     highlightButton(btnAdd);
-    fetch('/admin/product_form/0')
+    fetch('/admin/product_form/0', { method: 'POST' })
       .then(res => res.text())
       .then(html => {
         formContainer.innerHTML = html;
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if(currentMode === 'add') return;
 
       // edit
-      fetch(`/admin/product_form/${productId}`)
+      fetch(`/admin/product_form/${productId}`, { method: 'GET' })
         .then(res => res.text())
         .then(html => {
           formContainer.innerHTML = html;
