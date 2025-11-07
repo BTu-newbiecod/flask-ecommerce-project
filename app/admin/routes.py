@@ -154,3 +154,31 @@ def update_product(product_id):
     db.session.commit()
     print(f"Cập nhật sản phẩm '{product.name}' thành công")
     return '', 200
+
+@bp.route('/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_product(product_id):
+    product = Product.query.get(product_id)
+    
+    if not product:
+        print(f"Không tìm thấy sản phẩm ID {product_id}")
+        return "Sản phẩm không tồn tại", 404
+
+    try:
+        # Nếu sản phẩm có ảnh → xóa file ảnh trong thư mục static/images/products
+        if product.img_file:
+            img_path = os.path.join(current_app.root_path, 'static/images/products', product.img_file)
+            if os.path.exists(img_path):
+                os.remove(img_path)
+                print(f"Đã xóa file ảnh: {img_path}")
+
+        db.session.delete(product)
+        db.session.commit()
+        print(f"Đã xóa sản phẩm: {product.name}")
+        return '', 200
+
+    except Exception as e:
+        print(f"Lỗi khi xóa sản phẩm: {e}")
+        db.session.rollback()
+        return "Lỗi khi xóa sản phẩm", 500
