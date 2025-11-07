@@ -13,6 +13,8 @@ class User(db.Model, UserMixin):
     #them tham chieu nguoc
     orders=db.relationship('Order',backref='customer',lazy='dynamic')
 
+    cart_items = db.relationship('CartItem', backref='customer', lazy='dynamic')
+
 class Category(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(100),nullable=False,unique=True)
@@ -33,6 +35,8 @@ class Product(db.Model):
 
     #them tham chieu nguoc
     order_items=db.relationship('OrderItem',backref='product',lazy='dynamic')
+
+    cart_items = db.relationship('CartItem', backref='product', lazy='dynamic')
 
 
 #Tao ra cac gt cu the
@@ -72,3 +76,14 @@ class Promotion(db.Model):
     code=db.Column(db.String(100),nullable=False,unique=True)
     end_date=db.Column(db.DateTime,nullable=False)
     discount_percent=db.Column(db.Float,nullable=False)
+
+#LƯU GIO HANG -> THEM RELATION TRONG CLASS USER
+class CartItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+
