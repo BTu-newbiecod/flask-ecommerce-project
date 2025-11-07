@@ -6,57 +6,57 @@
 <div class="container mt-3 pt-3">
   <div class="row">
 
-    <!-- Nửa trái: danh sách sản phẩm -->
+    <!-- DANH SÁCH SẢN PHẨM -->
     <div class="col-md-6">
       <div class="card p-3 shadow-sm">
         <h5 class="mb-3 text-center">Tất cả sản phẩm</h5>
         {% if products %}
-        <ul class="list-group list-group-flush">
-          {% for product in products %}
-          <li class="list-group-item d-flex justify-content-between align-items-center product-item"
-              data-id="{{ product.id }}">
-            <div>
-              <strong>{{ product.name }}</strong><br>
-              Giá: {{ product.price }} VNĐ<br>
-              Tồn kho: {{ product.stock }}
-            </div>
-            <img src="{{ url_for('static', filename='images/products/' ~ product.img_file) }}" 
-                 alt="{{ product.name }}" class="img-thumbnail" style="width: 80px; height: 80px;">
-          </li>
-          {% endfor %}
-        </ul>
+          <ul class="list-group list-group-flush">
+            {% for product in products %}
+              <li class="list-group-item d-flex justify-content-between align-items-center product-item"
+                  data-id="{{ product.id }}"
+                  data-name="{{ product.name }}"
+                  data-img="{{ url_for('static', filename='images/products/' ~ product.img_file) }}">
+                <div>
+                  <strong>{{ product.name }}</strong><br>
+                  Giá: {{ product.price }} VNĐ<br>
+                  Tồn kho: {{ product.stock }}
+                </div>
+                <img src="{{ url_for('static', filename='images/products/' ~ product.img_file) }}"
+                     alt="{{ product.name }}"
+                     class="img-thumbnail" style="width:80px; height:80px; object-fit:cover;">
+              </li>
+            {% endfor %}
+          </ul>
         {% else %}
-        <p class="text-center">Chưa có sản phẩm nào.</p>
+          <p class="text-center">Chưa có sản phẩm nào.</p>
         {% endif %}
       </div>
     </div>
 
-    <!-- Nửa phải: thao tác -->
+    <!-- THAO TÁC -->
     <div class="col-md-6">
       <div class="card p-3 shadow-sm">
         <h5 class="mb-3 text-center">Thao tác</h5>
 
-        <!-- Nút thao tác chia đều -->
         <div class="d-flex gap-2 mb-3">
           <button type="button" class="btn btn-secondary flex-fill" id="btn-add">Thêm</button>
           <button type="button" class="btn btn-secondary flex-fill" id="btn-edit">Sửa</button>
           <button type="button" class="btn btn-secondary flex-fill" id="btn-delete">Xóa</button>
         </div>
 
-        <!-- Nhắc chọn sản phẩm -->
         <p id="select-message" class="text-center mb-3" style="display:none;">
-            Chọn sản phẩm bên trái để thao tác.
+          Chọn sản phẩm bên trái để thao tác.
         </p>
 
-        <!-- Form sản phẩm -->
         <div id="form-container" style="display:none;"></div>
-
       </div>
     </div>
 
   </div>
 </div>
-<!-- Modal xác nhận xóa -->
+
+<!-- MODAL XÁC NHẬN XÓA -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -65,8 +65,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body d-flex align-items-center gap-3">
-        <img id="delete-product-img" src="" alt="Hình sản phẩm" style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
-        <span>Bạn có chắc muốn xóa sản phẩm <strong id="delete-product-name"></strong> không?</span>
+        <img id="delete-product-img" src="" alt="Ảnh sản phẩm"
+             style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
+        <span>Bạn có chắc muốn xóa <strong id="delete-product-name"></strong> không?</span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -75,16 +76,14 @@
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
   const btnAdd = document.getElementById('btn-add');
   const btnEdit = document.getElementById('btn-edit');
   const btnDelete = document.getElementById('btn-delete');
-  const productItems = document.querySelectorAll('.product-item');
   const formContainer = document.getElementById('form-container');
   const selectMessage = document.getElementById('select-message');
 
@@ -92,107 +91,129 @@ document.addEventListener('DOMContentLoaded', function() {
   const deleteModal = new bootstrap.Modal(deleteModalEl);
   const deleteProductName = document.getElementById('delete-product-name');
   const deleteProductImg = document.getElementById('delete-product-img');
-  let selectedProductId = null;
+  const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
   let currentMode = 'add';
+  let selectedProductId = null;
 
-  function enableInputs(enable=true) {
-    const inputs = formContainer.querySelectorAll('input, textarea, select');
-    inputs.forEach(i => i.disabled = !enable);
-  }
-
-  function updateFormButton(mode) {
-    const btn = formContainer.querySelector('#form-action-btn');
-    if(!btn) return;
-    btn.textContent = mode === 'add' ? 'Thêm' : mode === 'edit' ? 'Sửa' : 'Xóa';
-  }
-
-  // Hiệu ứng đậm nút
-  const modeButtons = [btnAdd, btnEdit, btnDelete];
-  function highlightButton(selectedBtn) {
-    modeButtons.forEach(btn => {
+  // Thay doi mau button
+  const highlightButton = (activeBtn) => {
+    [btnAdd, btnEdit, btnDelete].forEach(btn => {
       btn.classList.remove('btn-dark');
-      btn.classList.add('btn-secondary'); // mờ mặc định
+      btn.classList.add('btn-secondary');
     });
-    selectedBtn.classList.remove('btn-secondary');
-    selectedBtn.classList.add('btn-dark');
+    activeBtn.classList.add('btn-dark');
+  };
+
+  const enableInputs = (enable = true) => {
+    formContainer.querySelectorAll('input, textarea, select')
+      .forEach(el => el.disabled = !enable);
+  };
+
+  const updateFormButton = (mode) => {
+    const btn = formContainer.querySelector('#form-action-btn');
+    if (!btn) return;
+    btn.textContent = mode === 'add' ? 'Thêm' :
+                      mode === 'edit' ? 'Sửa' : 'Xóa';
+  };
+
+  //Load form
+  async function loadForm(productId = 0, editable = true) {
+    try {
+      const res = await fetch(`/admin/product_form/${productId}`);
+      const html = await res.text();
+      formContainer.innerHTML = html;
+      formContainer.style.display = 'block';
+      selectMessage.style.display = 'none';
+
+      enableInputs(editable);
+      updateFormButton(currentMode);
+
+      const form = formContainer.querySelector('#product-form');
+      const url = currentMode === 'add'
+        ? '/admin/add_product'
+        : `/admin/update_product/${productId}`;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch(url, { method: 'POST', body: formData });
+          if (response.ok) {
+            alert(currentMode === 'add'
+              ? 'Thêm sản phẩm thành công!'
+              : 'Cập nhật sản phẩm thành công!');
+            location.reload();
+          } else {
+            alert('Có lỗi xảy ra khi gửi dữ liệu.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Lỗi kết nối khi gửi dữ liệu!');
+        }
+      });
+    } catch (err) {
+      console.error('Lỗi load form:', err);
+    }
   }
 
-  // Thêm sản phẩm
+  //3 nut thao tac
   btnAdd.addEventListener('click', () => {
     currentMode = 'add';
-    selectMessage.style.display = 'none';
     highlightButton(btnAdd);
-    fetch('/admin/product_form/0', { method: 'POST' })
-      .then(res => res.text())
-      .then(html => {
-        formContainer.innerHTML = html;
-        formContainer.style.display = 'block';
-        enableInputs(true);
-        updateFormButton(currentMode);
-      });
+    loadForm(0, true);
   });
 
-  // Sửa/Xóa
-  [btnEdit, btnDelete].forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentMode = btn.id === 'btn-edit' ? 'edit' : 'delete';
-      formContainer.style.display = 'none';
-      selectMessage.style.display = 'block';
-      highlightButton(btn);
-    });
+  btnEdit.addEventListener('click', () => {
+    currentMode = 'edit';
+    highlightButton(btnEdit);
+    formContainer.style.display = 'none';
+    selectMessage.style.display = 'block';
   });
 
-  // Click sản phẩm
-  productItems.forEach(item => {
+  btnDelete.addEventListener('click', () => {
+    currentMode = 'delete';
+    highlightButton(btnDelete);
+    formContainer.style.display = 'none';
+    selectMessage.style.display = 'block';
+  });
+
+  //Chon san pham
+  document.querySelectorAll('.product-item').forEach(item => {
     item.addEventListener('click', () => {
       const productId = item.dataset.id;
-      const productName = item.querySelector('strong').textContent;
-      const productImgSrc = item.querySelector('img').src;
+      const productName = item.dataset.name;
+      const productImg = item.dataset.img;
 
-      if(currentMode === 'delete') {
+      if (currentMode === 'delete') {
         selectedProductId = productId;
         deleteProductName.textContent = productName;
-        deleteProductImg.src = productImgSrc;
+        deleteProductImg.src = productImg;
         deleteModal.show();
-        return;
+      } else if (currentMode === 'edit') {
+        loadForm(productId, true);
       }
-
-      if(currentMode === 'add') return;
-
-      // edit
-      fetch(`/admin/product_form/${productId}`, { method: 'GET' })
-        .then(res => res.text())
-        .then(html => {
-          formContainer.innerHTML = html;
-          formContainer.style.display = 'block';
-          selectMessage.style.display = 'none';
-          enableInputs(currentMode === 'edit');
-          updateFormButton(currentMode);
-        })
-        .catch(err => console.error(err));
     });
   });
 
-  // Xác nhận xóa
-  document.getElementById('confirm-delete-btn').addEventListener('click', () => {
-    if(selectedProductId) {
-      fetch(`/admin/delete_product/${selectedProductId}`, { method: 'POST' })
-        .then(res => {
-          if(res.ok) {
-            const item = document.querySelector(`.product-item[data-id="${selectedProductId}"]`);
-            if(item) item.remove();
-            deleteModal.hide();
-            selectedProductId = null;
-          } else {
-            alert('Xóa thất bại!');
-          }
-        })
-        .catch(err => console.error(err));
+  //Xoa
+  confirmDeleteBtn.addEventListener('click', async () => {
+    if (!selectedProductId) return;
+    try {
+      const res = await fetch(`/admin/delete_product/${selectedProductId}`, { method: 'POST' });
+      if (res.ok) {
+        document.querySelector(`.product-item[data-id="${selectedProductId}"]`)?.remove();
+        deleteModal.hide();
+        alert('Đã xóa sản phẩm thành công!');
+      } else {
+        alert('Không thể xóa sản phẩm!');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối khi xóa sản phẩm!');
     }
   });
-
 });
-
 </script>
 {% endblock %}
