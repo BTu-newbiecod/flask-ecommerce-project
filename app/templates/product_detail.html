@@ -51,10 +51,6 @@
         padding-left: 2rem;
     }
 
-    .product-info > *:not(:last-child) {
-        margin-bottom: 1.5rem;
-    }
-
     .product-info h2 {
         font-size: 1.5rem;
         font-weight: 500;
@@ -79,7 +75,7 @@
     .product-description {
         font-size: 1.05rem;
         line-height: 1.8;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
 
     .product-description .desc-label {
@@ -95,7 +91,7 @@
 
 
     .btn-buy {
-        margin-top: 1.8rem;
+        margin-top: 3.5rem;
         background-color: #ee4d2d;
         color: #fff;
         border: none;
@@ -166,6 +162,44 @@
         }
     }
 
+    .volumn-btn {
+        width: 30px;
+        height: 30px;
+        padding: 0;            
+        border: 1px solid #ccc;
+        border-radius: 4px;    
+        background-color: #f8f8f8;
+        cursor: pointer;
+        font-size: 1.2rem;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .volumn-btn:hover {
+        background-color: #ddd;
+    }
+
+    #amount {
+        width: 50px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin: 0 5px;
+    }
+
+    .error-msg { 
+        position: absolute;
+        display: block; 
+        color: red;
+        min-height: 18px; 
+        font-size: 0.9rem; 
+        margin-top: 5px; 
+        margin-left: 5px; 
+    }
 </style>
 {% endblock %}
 
@@ -174,6 +208,7 @@
     <div class="product-wrapper">
         <div class="breadcrumb mb-3">
             <a href="{{ url_for('main.index') }}" class="text-danger">Trang chủ </a> &nbsp;>&nbsp;
+            <a href="{{ url_for('main.filter_product') }}?category={{ product.category.id }}&min_price=&max_price=">{{  product.category.name }}</a>  &nbsp;>&nbsp;
             <span>{{ product.name }}</span>
         </div>
 
@@ -182,16 +217,23 @@
             
             <div class="product-info">
                 <h2>{{ product.name }}</h2>
-                <div class="product-price">{{ "{:,.0f}".format(product.price) }}₫</div>
+                <div class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}₫</div>
                 <p class="product-description">
                     <span class="desc-label">Mô tả sản phẩm:</span>
                     <span class="desc-text">{{ product.description or "Chưa có mô tả cho sản phẩm này." }}</span>
                 </p>
                 {%if product.stock > 0 %}
-                    <p class="product-description">
+                    <p class="product-description" style="margin-bottom: 0.5rem !important">
                         <span class="desc-label">Số lượng:</span>
-                        <span class="desc-text">{{ product.stock}} sản phẩm có sẵn</span>
+
+                        <button onclick="updateAmount('minus')" class="volumn-btn"> - </button>
+                        <input id="amount" type="text" value="1" min="1" max="{{ product.stock }}">
+                        <button onclick="updateAmount('add')" class="volumn-btn"> + </button>
+
+                        <span class="desc-label">  &nbsp; {{ product.stock}} sản phẩm có sẵn </span>
                     </p>
+
+                    <p id="amount-error" class="error-msg"></p>
                 {% else %}
                     <p class="product-description">
                         <span class="desc-label">Số lượng:</span>
@@ -205,4 +247,60 @@
 </div>
 {% endblock %}
 
+{% block scripts %}
+<script>
+    var stock = {{ product.stock or 0 }};
+
+    function updateAmount(action) 
+    {
+        let input = document.getElementById("amount");
+        let errorEl = document.getElementById("amount-error");
+        let v = parseInt(input.value);
+
+        if (!v) v = 1;
+
+        if (action === "add") {
+            v++;
+            if (v > stock) 
+            {
+                v = stock;
+                errorEl.textContent = "Số lượng bạn chọn đã đạt mức tối đa của sản phẩm này!";
+            } 
+            else errorEl.textContent = "";
+        } 
+        else if (action === "minus") 
+        {
+            if (v > 1) v--;
+            errorEl.textContent = "";
+        }
+
+        input.value = v;
+    }
+
+    const input = document.getElementById("amount");
+    input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            let v = parseInt(this.value);
+            let errorEl = document.getElementById("amount-error");
+
+            if (isNaN(v) || v < 1) 
+            {
+                v = 1;
+                errorEl.textContent = "";
+            } 
+            else if (v > stock) 
+            {
+                v = stock;
+                errorEl.textContent = "Số lượng bạn chọn đã đạt mức tối đa của sản phẩm này!";
+            } 
+            else errorEl.textContent = "";
+
+            this.value = v;
+        }
+    });
+
+</script>
+{% endblock %}
+</body>
+</html>
 
