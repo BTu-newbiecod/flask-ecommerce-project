@@ -63,7 +63,6 @@ class OrderItem(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     quantity=db.Column(db.Integer,nullable=False,default=1)
     price_per_item=db.Column(db.Float,nullable=False)
-
     product_id=db.Column(db.Integer,db.ForeignKey('product.id'),nullable=False)
     order_id=db.Column(db.Integer,db.ForeignKey('orders.id'),nullable=False)
 

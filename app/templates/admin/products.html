@@ -8,6 +8,10 @@
 
     <!-- DANH SÁCH SẢN PHẨM -->
     <div class="col-md-6">
+      <form class="d-flex" action="/admin/admin_search" method="get"> 
+        <input type="text" name="q" class="form-control" placeholder="Nhập tên sản phẩm">
+        <button class="btn btn-dark" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </form>
       <div class="card p-3 shadow-sm">
         <h5 class="mb-3 text-center">Tất cả sản phẩm</h5>
         {% if products %}
@@ -207,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteModal.hide();
         alert('Đã xóa sản phẩm thành công!');
       } else {
-        alert('Không thể xóa sản phẩm!');
+        alert('Không thể xóa sản phẩm vì sản phẩm này đã có trong đơn hàng!');
       }
     } catch (err) {
       console.error(err);
