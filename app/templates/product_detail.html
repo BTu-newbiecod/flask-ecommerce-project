@@ -240,7 +240,11 @@
                         <span class="desc-text">Hết hàng</span>
                     </p>
                 {% endif %}
-                <button class="btn-buy">Thêm vào giỏ hàng</button>
+
+                <!-- gắn link them gio hang -->
+                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+                    <button type="submit" class="btn-buy">Thêm vào giỏ hàng</button>
+                </form>
             </div>
         </div>
     </div>
