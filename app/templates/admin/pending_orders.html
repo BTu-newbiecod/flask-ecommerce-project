@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Đơn hàng chờ xử lý{% endblock %}
+
+{% block content %}
+<div class="container mt-3 pt-3">
+  <!-- Nút quay lại trang quản trị -->
+  <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mb-4">
+    &larr; Quay lại trang quản trị
+  </a>
+
+  <h3 class="mb-4">Đơn hàng chờ xử lý</h3>
+
+  {% if orders %}
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Khách hàng</th>
+        <th>Tổng tiền</th>
+        <th>Ngày đặt</th>
+        <th>Chi tiết</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.customer.username }}</td>
+        <td>{{ order.total_amount }} VNĐ</td>
+        <td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>
+          <a href="{{ url_for('admin.order_form', order_id=order.id, source='pending') }}" class="btn btn-sm btn-secondary">
+            Xem
+          </a>    
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Không có đơn hàng chờ xử lý.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,35 +1,44 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from app.models import Product, Category
-from sqlalchemy import or_
 import unicodedata
 
 bp = Blueprint('main', __name__)
 
-
+# 🏠 Trang chủ mới (index)
 @bp.route('/')
 @bp.route('/index')
 def index():
+    # Trang này có thể chỉ hiển thị banner, giới thiệu, nút đến sản phẩm, v.v.
+    return render_template("index.html")
+
+
+# 🛒 Trang danh sách sản phẩm (được tách riêng)
+@bp.route('/product_list')
+def product_list():
     products = Product.query.all()
     categories = Category.query.all()
-    return render_template("index.html", products = products, categories=categories)
+    return render_template("product_list.html", products=products, categories=categories)
 
 
+# 📄 Chi tiết sản phẩm
 @bp.route('/product-<int:id>-<string:slug>')
 def product_detail(id, slug):
     product = Product.query.get_or_404(id)
     return render_template('product_detail.html', product=product)
 
-# Bo dau khi search
+
+# ✂️ Bỏ dấu tiếng Việt khi tìm kiếm
 def remove_accents(input_str):
     nfkd_form = unicodedata.normalize('NFKD', input_str)
     return ''.join([c for c in nfkd_form if not unicodedata.combining(c)])
 
-# Tim san pham
+
+# 🔍 Tìm kiếm sản phẩm
 @bp.route('/search', methods=['GET'])
 def search_product():
     query = request.args.get('q', '').strip()
     if not query:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.product_list'))
     
     normal_query = remove_accents(query)
 
@@ -41,9 +50,10 @@ def search_product():
     ]
     categories = Category.query.all()
 
-    return render_template('index.html', products=products, query=query, categories=categories)
+    return render_template('product_list.html', products=products, query=query, categories=categories)
 
-# Loc san pham
+
+# 🧭 Lọc sản phẩm theo danh mục / giá
 @bp.route('/filter', methods=['GET'])
 def filter_product():
     category_id = request.args.get('category', type=int)
@@ -60,4 +70,4 @@ def filter_product():
 
     products = query.all()
     categories = Category.query.all()
-    return render_template('index.html', products=products, categories=categories)
+    return render_template('product_list.html', products=products, categories=categories)
