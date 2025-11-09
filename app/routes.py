@@ -3,9 +3,9 @@ from app.models import Product, Category
 from sqlalchemy import or_
 import unicodedata
 
-from flask import Blueprint, render_template ,redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required,current_user
-from app.models import Product,CartItem, Order, OrderItem
+from app.models import Product, CartItem, Order, OrderItem
 
 from app import db
 
@@ -26,6 +26,7 @@ def product_detail(id, slug):
     product = Product.query.get_or_404(id)
     return render_template('product_detail.html', product=product)
 
+
 #KHI BẤM NÚT THÊM VÀO GIỎ HÀNG 
 @bp.route('/add-to-cart/<int:product_id>', methods=['POST'])
 @login_required
@@ -36,7 +37,7 @@ def add_to_cart(product_id):
     item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
 
     if item:
-        item.quantity += quantity
+        item.quantity = min(item.quantity + quantity, item.product.stock)
     else:
         #nếu chưa có, tạo mới
         item = CartItem(user_id=current_user.id, product_id=product_id, quantity=quantity)
@@ -76,26 +77,55 @@ def remove_from_cart(product_id):
     
     return redirect(url_for('main.cart'))
 
-#NÚT CHỈNH SỬA TRONG GIỎ HÀNG
-@bp.route('/update-cart/<int:product_id>', methods=['POST'])
+#NÚT XÓA NHIỀU KHỎI GIỎ HÀNG
+@bp.route('/remove-selected', methods=['POST'])
 @login_required
-def update_cart(product_id):
-    new_quantity = int(request.form.get('quantity', 1))
-    
-    item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
-    
-    if item:
-        if new_quantity > 0:
-            item.quantity = new_quantity
-            db.session.commit()
-            flash('Đã cập nhật số lượng sản phẩm.', 'success')
-        elif new_quantity == 0:
-            #số lượng là 0 coi như xóa
+def remove_selected_from_cart():
+    ids = request.form.getlist('selected_items')
+    for product_id in ids:
+        item = CartItem.query.filter_by(user_id=current_user.id, product_id=int(product_id)).first()
+        if item:
             db.session.delete(item)
-            db.session.commit()
-            flash('Đã xóa sản phẩm khỏi giỏ hàng.', 'info')
-            
+    db.session.commit()
+    flash('Đã xóa các sản phẩm đã chọn.', 'info')
     return redirect(url_for('main.cart'))
+
+#NÚT CHỈNH SỬA TRONG GIỎ HÀNG
+@bp.route('/update-cart/<int:cart_item_id>', methods=['POST'])
+@login_required
+def update_cart(cart_item_id):
+    try:
+        new_quantity = int(request.form.get('quantity', 1))
+    except ValueError:
+        new_quantity = 1
+
+    # Lấy đúng cart_item theo id và user
+    item = CartItem.query.filter_by(id=cart_item_id, user_id=current_user.id).first()
+    if not item:
+        return jsonify({"success": False, "message": "Sản phẩm không tồn tại"}), 404
+
+    # Kiểm tra số lượng hợp lệ
+    message = ""
+    if new_quantity >= item.product.stock:
+        item.quantity = item.product.stock
+        message = "Bạn đã chọn tối đa số lượng!"
+    elif new_quantity > 0:
+        item.quantity = new_quantity
+        message = ""
+    else:
+        item.quantity = 1
+        message = "Vui lòng chọn số lượng ≥ 1!"
+
+    db.session.commit()
+
+    new_total = item.quantity * item.product.price
+
+    return jsonify({
+        "success": True,
+        "message": message,
+        "new_total": new_total
+    })
+
 
 
 
@@ -103,53 +133,53 @@ def update_cart(product_id):
 @bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    #Lấy giỏ hàng
-    cart_items = current_user.cart_items.all()
+    if request.method == 'GET':
+        # Lấy danh sách selected_items từ query params
+        selected_ids = request.args.getlist("selected_items") 
+        selected_ids = list(map(int, selected_ids))
+        
+        cart_items = CartItem.query.filter(CartItem.id.in_(selected_ids)).all()
+        
+        if not cart_items:
+            flash('Giỏ hàng của bạn đang trống. Hãy thêm sản phẩm trước!', 'info')
+            return redirect(url_for('main.index'))
+        
+        total_price = sum(item.product.price * item.quantity for item in cart_items)
+        return render_template('checkout.html', cart_items=cart_items, total=total_price)
+    
+    # POST: Xác nhận đặt hàng
+    selected_ids = request.form.getlist("selected_items") 
+    selected_ids = list(map(int, selected_ids))
+    cart_items = CartItem.query.filter(CartItem.id.in_(selected_ids)).all()
     
     if not cart_items:
         flash('Giỏ hàng của bạn đang trống. Hãy thêm sản phẩm trước!', 'info')
         return redirect(url_for('main.index'))
 
-    #tổng tiền 
-    total_price = 0
-    for item in cart_items:
-        total_price += item.product.price * item.quantity
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
 
-    #BẤM THÊM XÁC NHẬN ĐỂ ĐẶT HÀNG
-    if request.method == 'POST':
-        try:
-            new_order = Order(
-                customer=current_user,
-                total_amount=total_price
-             
+    try:
+        new_order = Order(customer=current_user, total_amount=total_price)
+        db.session.add(new_order)
+        
+        for item in cart_items:
+            order_item = OrderItem(
+                order=new_order,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                price_per_item=item.product.price
             )
-            db.session.add(new_order)
-            
-            #Chuyển các sản phẩm từ giỏ hàng sang chi tiết đơn hàng
-            for item in cart_items:
-                order_item = OrderItem(
-                    order=new_order, 
-                    product_id=item.product_id,
-                    quantity=item.quantity,
-                    price_per_item=item.product.price
-                )
-                db.session.add(order_item)
-                
-               
-                db.session.delete(item)
-            
-           
-            db.session.commit()
-            
-            flash('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.', 'success')
-            return redirect(url_for('main.my_orders')) #chuyển đến trang lịch sử đơn hàng
-            
-        except Exception as e:
-            # rollback nếu lỗi
-            db.session.rollback()
-            flash(f'Đã có lỗi xảy ra khi đặt hàng: {str(e)}', 'danger')
+            db.session.add(order_item)
+            db.session.delete(item)
+        
+        db.session.commit()
+        flash('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.', 'success')
+        return redirect(url_for('main.my_orders'))  # chuyển đến lịch sử đơn hàng
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Đã có lỗi xảy ra khi đặt hàng: {str(e)}', 'danger')
+        return redirect(url_for('main.cart'))  # quay lại giỏ hàng nếu lỗi
 
-    return render_template('checkout.html', cart_items=cart_items, total=total_price)
 
 
 

@@ -176,6 +176,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        padding-bottom: 3px;
     }
 
 
@@ -183,7 +184,7 @@
         background-color: #ddd;
     }
 
-    #amount {
+    #quantity {
         width: 50px;
         text-align: center;
         border: 1px solid #ccc;
@@ -200,6 +201,15 @@
         margin-top: 5px; 
         margin-left: 5px; 
     }
+
+    .currency {
+        display: inline-block; 
+        font-size: 0.75em;       
+        vertical-align: baseline;
+        position: relative;
+        top: -5.5px;           
+        margin-left: 2px;
+    }
 </style>
 {% endblock %}
 
@@ -207,44 +217,43 @@
 <div class="product-page">
     <div class="product-wrapper">
         <div class="breadcrumb mb-3">
-            <a href="{{ url_for('main.index') }}" class="text-danger">Trang chủ </a> &nbsp;>&nbsp;
+            <a href="{{ url_for('main.index') }}">Trang chủ </a> &nbsp;>&nbsp;
             <a href="{{ url_for('main.filter_product') }}?category={{ product.category.id }}&min_price=&max_price=">{{  product.category.name }}</a>  &nbsp;>&nbsp;
             <span>{{ product.name }}</span>
         </div>
 
         <div class="product-detail">
-            <img src="{{ url_for('static', filename='images/products/' + product.img_file) }}" alt="{{ product.name }}">
+            <img src="{{ url_for('static', filename='assets/images/products/' + product.img_file) }}" alt="{{ product.name }}">
             
             <div class="product-info">
                 <h2>{{ product.name }}</h2>
-                <div class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}₫</div>
+                <div class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span></div>
                 <p class="product-description">
                     <span class="desc-label">Mô tả sản phẩm:</span>
                     <span class="desc-text">{{ product.description or "Chưa có mô tả cho sản phẩm này." }}</span>
                 </p>
                 {%if product.stock > 0 %}
-                    <p class="product-description" style="margin-bottom: 0.5rem !important">
-                        <span class="desc-label">Số lượng:</span>
+                    <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+                        <p class="product-description" style="margin-bottom: 0.5rem !important">
+                            <span class="desc-label">Số lượng:</span>
 
-                        <button onclick="updateAmount('minus')" class="volumn-btn"> - </button>
-                        <input id="amount" type="text" value="1" min="1" max="{{ product.stock }}">
-                        <button onclick="updateAmount('add')" class="volumn-btn"> + </button>
+                            <button type="button" onclick="updateQuantity('minus')" class="volumn-btn"> - </button>
+                            <input id="quantity" name="quantity" type="text" value="1" min="1" max="{{ product.stock }}">
+                            <button type="button" onclick="updateQuantity('add')" class="volumn-btn"> + </button>
 
-                        <span class="desc-label">  &nbsp; {{ product.stock}} sản phẩm có sẵn </span>
-                    </p>
+                            <span class="desc-label">  &nbsp; {{ product.stock}} sản phẩm có sẵn </span>
+                        </p>
 
-                    <p id="amount-error" class="error-msg"></p>
+                        <p id="quantity-error" class="error-msg"></p>
+
+                        <button type="submit" class="btn-buy">Thêm vào giỏ hàng</button>
+                    </form>
                 {% else %}
                     <p class="product-description">
                         <span class="desc-label">Số lượng:</span>
                         <span class="desc-text">Hết hàng</span>
                     </p>
                 {% endif %}
-
-                <!-- gắn link them gio hang -->
-                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
-                    <button type="submit" class="btn-buy">Thêm vào giỏ hàng</button>
-                </form>
             </div>
         </div>
     </div>
@@ -255,10 +264,10 @@
 <script>
     var stock = {{ product.stock or 0 }};
 
-    function updateAmount(action) 
+    function updateQuantity(action) 
     {
-        let input = document.getElementById("amount");
-        let errorEl = document.getElementById("amount-error");
+        let input = document.getElementById("quantity");
+        let errorEl = document.getElementById("quantity-error");
         let v = parseInt(input.value);
 
         if (!v) v = 1;
@@ -281,11 +290,11 @@
         input.value = v;
     }
 
-    const input = document.getElementById("amount");
+    const input = document.getElementById("quantity");
     input.addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
             let v = parseInt(this.value);
-            let errorEl = document.getElementById("amount-error");
+            let errorEl = document.getElementById("quantity-error");
 
             if (isNaN(v) || v < 1) 
             {

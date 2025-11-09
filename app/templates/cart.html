@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}Giỏ hàng{% endblock %}
+
+{% block head_css %}
+    {{ super() }}
+    <style>
+
+    body {
+        background-color: #f5f5f5 !important;
+    }
+
+    p {
+        margin-top: 0;
+        margin-bottom: 0.125rem;
+    }
+
+    .mt-3 {
+        margin-top: 0rem !important;
+        margin-bottom: 35px;
+    }
+
+    .row.justify-content-center {
+        margin-top: 0px;
+    }
+
+    form.d-flex .form-control {
+        border-radius: 30px;
+        padding: 10px 18px;
+        font-size: 20px;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+
+    form.d-flex .form-control:focus {
+        border-color: #333;
+        box-shadow: 0 0 6px rgba(13, 110, 253, 0.4);
+    }
+
+    form.d-flex .btn {
+        background-color: black;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    form.d-flex .btn:hover {
+        background-color: #333;
+        transform: translateY(-1px);
+    }
+
+    .col-md-6 {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-radius: 30px;
+        background-color: #fff;
+        padding: 8px 10px;
+    }
+
+    .row-container {
+        display: flex;
+        gap: 10px;
+        justify-content: start;
+        align-items: center;
+        background-color: white;
+        padding: 0px 0px 0px 2rem;
+        height: 55px;
+        border-radius: 3px;
+        margin-bottom: 15px;
+    }
+
+    .btn-chosen {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #a6a6a6;
+        background-color: #f9f9f9;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+    }
+
+    .btn-chosen:hover {
+        box-shadow: 0 -5px 10px rgba(107, 107, 107, 0.4);
+    }
+
+    input:checked + .btn-chosen {
+        background-color: #222222;
+        color: white;
+    }
+
+    input:checked + .btn-chosen::before {
+        content: "✓";
+        font-size: 14px;
+    }
+
+    .text-product {
+        padding: 10px 15px;
+        width: 550px;
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+
+    .text-price {
+        padding: 10px 20px;
+        width: 125px;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+    }
+   
+    .text-amount {
+        padding: 10px 20px;
+        width: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+    }
+
+    .text-total {
+        padding: 10px 20px;
+        width: 150px;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+    }   
+
+    .text-action
+    {
+        padding: 10px 20px;
+        width: 150px;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+    }
+    
+    .btn-action {
+        padding: 10px 20px;
+        width: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+        transition: all 0.3s ease;
+        background: none;    
+        border: none;         
+        color: #000000;;   
+        cursor: pointer;      
+        font-size: 1rem;   
+        margin-left: 50px;  
+    }
+
+    .btn-action:hover
+    {
+        color: #ff0000; 
+    }
+
+    .currency {
+        font-size: 0.75em;
+        vertical-align: middle;
+        position: relative;
+        top: -1.75px;
+        margin-left: 1px;      
+        }
+
+    .btn-volumn
+    {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #a6a6a6;
+        background-color: #f9f9f9;
+        padding-bottom: 3px;
+    }
+
+    .text-field-amount
+    {
+        width: 50px;
+        height: 30px;
+        text-align: center;  
+    }
+
+    .text-label
+    {
+        font-size: large;
+        font-weight: 500;
+    }
+
+    input[type="checkbox"].cart-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .btn-purchase
+    {
+        width: 150px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+        transition: all 0.3s ease;
+        background-color: #424242;     
+        color: #e1e1e1;;   
+        cursor: pointer;      
+        font-size: 1rem;  
+        margin-right: 25px;
+        margin-left: auto;
+    }
+
+    .btn-purchase:hover
+    {
+        background-color: #000000; 
+    }
+
+    #checkout-summary {
+        display: inline-flex;
+        align-items: center; 
+        gap: 1px;               
+    }
+
+    .sticky-bottom {
+        height: 75px; 
+        background-color: #cdcdcd; 
+        margin-top: 25px;
+        position: sticky;
+        bottom: 0;
+        z-index: 100;
+    }
+
+</style>
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-6">
+            <form class="d-flex" action="/search" method="get">
+                <input type="text" name="q" class="form-control me-2" placeholder="Bạn muốn mua gì hôm nay?">
+                <button class="btn btn-dark" type="submit">Tìm kiếm</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row-container text-label" style="background-color: #424242; height: 65px;"> 
+        <input type="checkbox" id="choose-all-top" hidden>
+        <label for="choose-all-top" class="btn-chosen"></label>
+        <p class="text-product" style="color: #ffffff;">Sản phẩm</p>
+        <p class="text-price" style="color: #ffffff;">Đơn giá</p>
+        <p class="text-amount" style="color: #ffffff;">Số lượng</p>
+        <p class="text-total" style="color: #ffffff;">Thành tiền</p>
+        <p class="text-action" style="color: #ffffff;">Thao tác</p>
+    </div>
+
+    {% for cart_item in cart_items%}
+        <div class="row-container"> 
+            <input type="checkbox" class="cart-checkbox" id="{{ cart_item.id }}" name="selected_items" value="{{ cart_item.id }}" hidden>
+            <label for="{{ cart_item.id }}" class="btn-chosen"></label>
+
+            <a href="{{ url_for('main.product_detail', id=cart_item.product.id, slug=cart_item.product.name|replace(' ', '-')) }}" class="text-product text-decoration-none text-dark">
+                <img src="{{ url_for('static', filename='assets/images/products/' + cart_item.product.img_file) }}" alt="{{ cart_item.product.name }}" style="width:50px; height:50px; margin-right:10px;">
+                <span>{{ cart_item.product.name }}</span>
+            </a>
+            
+            <p class="text-price" id="product-price-{{ cart_item.id }}" data-price="{{ cart_item.product.price }}">
+                {{ "{:,.0f}".format(cart_item.product.price).replace(",", ".") }}<span class="currency">₫</span>
+            </p>
+
+            <form id="form-{{ cart_item.id }}" action="{{ url_for('main.update_cart', cart_item_id=cart_item.id) }}" method="POST" class="text-amount">
+                <button type="button" onclick="updateQuantity({{ cart_item.id }}, 'minus', {{ cart_item.product.stock }})" class="btn-volumn"> - </button>
+                
+                <input id="quantity-{{ cart_item.id }}" name="quantity" type="text" value="{{ cart_item.quantity }}" class="text-field-amount">
+                
+                <button type="button" onclick="updateQuantity({{ cart_item.id }}, 'add', {{ cart_item.product.stock }})" class="btn-volumn"> + </button>
+            </form>
+
+            
+            <p class="text-total">{{ "{:,.0f}".format(cart_item.product.price * cart_item.quantity).replace(",", ".") }}<span class="currency">₫</span></p>
+            
+            <form action="{{ url_for('main.remove_from_cart', product_id=cart_item.product.id) }}" method="POST">
+                <button type="submit" class="btn-action">Xóa</button>
+            </form>
+        </div>
+    {% endfor %}
+    <div class="row-container text-label sticky-bottom">
+        <input type="checkbox" id="choose-all-bot" hidden>
+        <label for="choose-all-bot" class="btn-chosen"></label>
+        <p class="text-product">Chọn tất cả (<span>{{ cart_items|length }}</span>)
+            <button id="delete-selected-btn" class="btn-action text-label" style="margin-left: 15px;">Xóa</button>
+        </p>
+        
+
+        <div id="checkout-summary" style="margin-left: auto; margin-right: -150px;">
+            Tổng cộng (<span id="selected-count">0</span>&nbsp;sản phẩm):&nbsp; <span id="selected-total">0</span><span class="currency">₫</span>
+        </div>
+        <button id="checkout-btn" class="btn-purchase" style="font-size: large">Thanh toán</button>
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const cartCount = {{ cart_items|length }};
+        const debounceTimers = {};
+        const pendingRequests = {}
+
+        const checkboxes = document.querySelectorAll('input[name="selected_items"]');
+        const chooseAllTop = document.getElementById('choose-all-top');
+        const chooseAllBot = document.getElementById('choose-all-bot');
+
+        function toggleAll(checked) {
+            checkboxes.forEach(cb => cb.checked = checked);
+            chooseAllTop.checked = checked;
+            chooseAllBot.checked = checked;
+            updateCheckoutSummary();
+        }
+
+        chooseAllTop.addEventListener('change', () => toggleAll(chooseAllTop.checked));
+        chooseAllBot.addEventListener('change', () => toggleAll(chooseAllBot.checked));
+
+        // Cập nhật trạng thái choose-all nếu check/uncheck từng item
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                chooseAllTop.checked = allChecked;
+                chooseAllBot.checked = allChecked;
+                updateCheckoutSummary();
+            });
+        });
+
+        function updateQuantity(id, action, stock) {
+            const input = document.getElementById(`quantity-${id}`);
+            let v = parseInt(input.value) || 1;
+
+            if (action === "add") v++;
+            else if (action === "minus") v--;
+
+            if (v < 1) v = 1;
+            if (v > stock) v = stock;
+
+            input.value = v;
+
+            // Cập nhật UI ngay
+            const rowContainer = input.closest('.row-container');
+            const totalEl = rowContainer.querySelector('.text-total');
+            const priceEl = document.getElementById(`product-price-${id}`);
+            const price = parseInt(priceEl.dataset.price) || 0;
+            totalEl.innerHTML = (price * v).toLocaleString('vi-VN') + '<span class="currency">₫</span>';
+            updateCheckoutSummary();
+
+            // Nếu có request cũ chưa hoàn thành, hủy nó (hoặc bỏ qua kết quả)
+            if (pendingRequests[id]) pendingRequests[id].abort(); // nếu dùng AbortController
+
+            const controller = new AbortController();
+            pendingRequests[id] = controller;
+
+            fetch(`/update-cart/${id}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `quantity=${v}`,
+                signal: controller.signal
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) alert(data.message);
+                delete pendingRequests[id];
+            })
+            .catch(err => {
+                if (err.name !== 'AbortError') console.error(err);
+            });
+        }
+
+
+        {% for cart_item in cart_items %}
+            attachQuantityListener({{ cart_item.id }}, {{ cart_item.product.stock }});
+        {% endfor %}
+
+        function attachQuantityListener(id, stock) {
+            const input = document.getElementById(`quantity-${id}`);
+
+            function handleQuantityChange() {
+                let v = parseInt(input.value.trim()) || 1;
+                if (v < 1) v = 1;
+                if (v > stock) v = stock;
+                input.value = v;
+
+                // Abort request cũ nếu có
+                if (pendingRequests[id]) pendingRequests[id].abort();
+
+                const controller = new AbortController();
+                pendingRequests[id] = controller;
+
+                fetch(`/update-cart/${id}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: `quantity=${v}`,
+                    signal: controller.signal
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.message) alert(data.message);
+
+                    const rowContainer = input.closest('.row-container');
+                    const totalEl = rowContainer.querySelector('.text-total');
+                    const priceEl = document.getElementById(`product-price-${id}`);
+                    const price = parseInt(priceEl.dataset.price) || 0;
+                    totalEl.innerHTML = (price * v).toLocaleString('vi-VN') + '<span class="currency">₫</span>';
+                    updateCheckoutSummary();
+
+                    delete pendingRequests[id];
+                })
+                .catch(err => {
+                    if (err.name !== 'AbortError') console.error(err);
+                });
+            }
+
+            input.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    handleQuantityChange();
+                    input.blur(); 
+                }
+            });
+
+            input.addEventListener("blur", handleQuantityChange);
+        }
+
+        document.querySelectorAll('input[name="selected_items"]').forEach(cb => {
+            cb.addEventListener('change', updateCheckoutSummary);
+        });
+
+        toggleAll()
+        updateCheckoutSummary();
+
+        document.getElementById("checkout-btn").addEventListener("click", function() {
+            const selected = Array.from(document.querySelectorAll('input[name="selected_items"]:checked'))
+                                .map(cb => cb.value);
+
+            if (selected.length === 0 && cartCount > 0) {
+                alert("Vui lòng chọn ít nhất một sản phẩm để thanh toán!");
+                return;
+            }
+
+            const form = document.createElement("form");
+            form.method = "GET";
+            form.action = "{{ url_for('main.checkout') }}";
+
+            selected.forEach(id => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "selected_items";
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            document.getElementById('choose-all-top').checked = false;
+            document.getElementById('choose-all-bot').checked = false;
+            document.querySelectorAll('input[name="selected_items"]').forEach(cb => cb.checked = false);
+            form.submit();
+        });
+
+        function updateCheckoutSummary() {
+            const selectedCheckboxes = document.querySelectorAll('input[name="selected_items"]:checked');
+            const countEl = document.getElementById('selected-count');
+            const totalEl = document.getElementById('selected-total');
+
+            let total = 0;
+
+            selectedCheckboxes.forEach(cb => {
+                // Lấy cart_item id
+                const id = cb.value;
+
+                // Lấy price * quantity của item
+                const quantityInput = document.getElementById(`quantity-${id}`);
+                const quantity = parseInt(quantityInput.value) || 0;
+
+                const priceEl = document.querySelector(`#product-price-${id}`);
+                const price = parseInt(priceEl.dataset.price) || 0;
+
+                total += price * quantity;
+            });
+
+            countEl.textContent = selectedCheckboxes.length;
+            totalEl.textContent = total.toLocaleString('vi-VN'); // định dạng số kiểu Việt Nam
+        }
+
+        document.getElementById("delete-selected-btn").addEventListener("click", function() {
+            const selected = Array.from(document.querySelectorAll('input[name="selected_items"]:checked'))
+                                .map(cb => cb.value);
+
+            if (selected.length === 0) {
+                alert("Vui lòng chọn ít nhất một sản phẩm để xóa!");
+                return;
+            }
+
+            if (!confirm("Bạn có chắc muốn xóa các sản phẩm đã chọn không?")) return;
+
+            // Tạo form POST để xóa
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{{ url_for('main.remove_selected_from_cart') }}";
+
+            selected.forEach(id => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "selected_items";
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+
+        window.addEventListener('pageshow', function(event) {
+            updateCheckoutSummary();
+        });
+    </script>
+{% endblock %}
