@@ -232,7 +232,7 @@ def delivery_orders():
     return render_template('admin/delivery_orders.html', orders=orders)
 
 
-@bp.route('/admin/order/<int:order_id>')
+@bp.route('/order/<int:order_id>')
 @login_required
 def order_form(order_id):
     order = Order.query.get_or_404(order_id)
@@ -241,3 +241,58 @@ def order_form(order_id):
     source = request.args.get('source', None)
     return render_template('admin/order_form.html', order=order, order_items=order_items, source=source)
 
+@bp.route('/reports')
+@login_required
+@admin_required
+def reports():
+    now = datetime.now()
+    
+    monthly_data = db.session.query(
+        extract('month', Order.order_date).label('month'),
+        func.sum(Order.total_amount).label('revenue')
+    ).filter(
+        extract('year', Order.order_date) == now.year,
+        Order.status == OrderStatus.COMPLETED  
+    ).group_by('month').order_by('month').all()
+
+    monthly_revenue = {int(month): revenue for month, revenue in monthly_data}
+
+    for m in range(1, 13):
+        if m not in monthly_revenue:
+            monthly_revenue[m] = 0
+
+    monthly_revenue = dict(sorted(monthly_revenue.items()))
+
+    monthly_order_data = db.session.query(
+    extract('month', Order.order_date).label('month'),
+    func.count(Order.id).label('order_count')
+    ).filter(
+        extract('year', Order.order_date) == now.year,
+        Order.status == OrderStatus.COMPLETED
+    ).group_by('month').order_by('month').all()
+
+    monthly_order_counts = {int(month): count for month, count in monthly_order_data}
+    for m in range(1, 13):
+        if m not in monthly_order_counts:
+            monthly_order_counts[m] = 0
+    monthly_order_counts = dict(sorted(monthly_order_counts.items()))
+
+    return render_template(
+        'admin/reports.html',
+        monthly_revenue=monthly_revenue,
+        current_year=now.year,   
+        monthly_order_counts=monthly_order_counts
+    )
+
+@bp.route('/completed_orders')
+def completed_orders():
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+
+    orders = Order.query.filter(
+        Order.status == OrderStatus.COMPLETED,
+        extract('month', Order.order_date) == month,
+        extract('year', Order.order_date) == year
+    ).order_by(Order.order_date.desc()).all()
+
+    return render_template('admin/completed_orders.html', orders=orders, month=month, year=year)
