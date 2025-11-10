@@ -232,6 +232,9 @@
         z-index: 100;
     }
 
+    .login-button-link { color: #676767; }
+    .login-button-link:hover{ color: #2d2d2d !important; }
+
 </style>
 
     </style>
@@ -287,6 +290,7 @@
             </form>
         </div>
     {% endfor %}
+    {% if cart_items %}
     <div class="row-container text-label sticky-bottom">
         <input type="checkbox" id="choose-all-bot" hidden>
         <label for="choose-all-bot" class="btn-chosen"></label>
@@ -300,6 +304,14 @@
         </div>
         <button id="checkout-btn" class="btn-purchase" style="font-size: large">Thanh toán</button>
     </div>
+    {% else %}
+    <div style="text-align: center; margin-top: 100px;">
+        <a href="{{ url_for('main.product_list') }}" class="btn btn-link align-baseline p-0 login-button-link">
+            Chưa đặt hàng sản phẩm nào! Bạn có muốn đi mua sắm tiếp?
+        </a>
+    </div>
+
+    {% endif %}
 
 
 {% endblock %}
@@ -324,7 +336,7 @@
         chooseAllTop.addEventListener('change', () => toggleAll(chooseAllTop.checked));
         chooseAllBot.addEventListener('change', () => toggleAll(chooseAllBot.checked));
 
-        // Cập nhật trạng thái choose-all nếu check/uncheck từng item
+    
         checkboxes.forEach(cb => {
             cb.addEventListener('change', () => {
                 const allChecked = Array.from(checkboxes).every(c => c.checked);
@@ -346,7 +358,6 @@
 
             input.value = v;
 
-            // Cập nhật UI ngay
             const rowContainer = input.closest('.row-container');
             const totalEl = rowContainer.querySelector('.text-total');
             const priceEl = document.getElementById(`product-price-${id}`);
@@ -354,8 +365,7 @@
             totalEl.innerHTML = (price * v).toLocaleString('vi-VN') + '<span class="currency">₫</span>';
             updateCheckoutSummary();
 
-            // Nếu có request cũ chưa hoàn thành, hủy nó (hoặc bỏ qua kết quả)
-            if (pendingRequests[id]) pendingRequests[id].abort(); // nếu dùng AbortController
+            if (pendingRequests[id]) pendingRequests[id].abort(); 
 
             const controller = new AbortController();
             pendingRequests[id] = controller;
@@ -474,10 +484,8 @@
             let total = 0;
 
             selectedCheckboxes.forEach(cb => {
-                // Lấy cart_item id
                 const id = cb.value;
 
-                // Lấy price * quantity của item
                 const quantityInput = document.getElementById(`quantity-${id}`);
                 const quantity = parseInt(quantityInput.value) || 0;
 
@@ -488,7 +496,7 @@
             });
 
             countEl.textContent = selectedCheckboxes.length;
-            totalEl.textContent = total.toLocaleString('vi-VN'); // định dạng số kiểu Việt Nam
+            totalEl.textContent = total.toLocaleString('vi-VN');
         }
 
         document.getElementById("delete-selected-btn").addEventListener("click", function() {

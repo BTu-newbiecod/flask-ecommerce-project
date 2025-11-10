@@ -24,6 +24,8 @@
         .login-button-link:hover { background-color: #1d1616 !important; }
         .register-button-link { color: #e95656; }
         .register-button-link:hover{ color: #dc1616 !important; }
+        .forget-button-link { color: #5c5c5c; }
+        .forget-button-link:hover{ color: #232323 !important; }
     </style>
 {% endblock %}
 
@@ -54,10 +56,10 @@
                         </div>
                         
                         <div class="mb-4" style="text-align: left;">
-                            <a href="#" class="btn btn-link p-0" style="font-size: small">Quên mật khẩu</a>
+                            <a href="#" class="btn btn-link p-0 forget-button-link" style="font-size: 14px">Quên mật khẩu</a>
                         </div>
 
-                        <div class="text-center mb-4 register-line"> Bạn mới biết đến PyPy Store? 
+                        <div class="text-center mb-4 register-line"  style="margin-top: 25px; margin-bottom: 0.5rem !important;"> Bạn mới biết đến PyPy Store? 
                             <a href="{{ url_for('auth.register') }}" class="btn btn-link align-baseline p-0 register-button-link">Đăng ký</a>
                         </div>
                     </form>

@@ -105,7 +105,7 @@
             font-size: 0.75em;
             vertical-align: middle;
             position: relative;
-            top: -1.75px;
+            top: -1.5px;
             margin-left: 1px;      
         }
         
@@ -163,7 +163,12 @@
 
     <div class="field-purchase">
         <div style="text-align: right; background-color: #cdcdcd; margin-right: -5px; margin-bottom: 5px; padding: 10px 10px;">
-            <p class="text-label">Tổng số tiền&nbsp;(<span>{{ cart_items|length }} sản phẩm</span>): {{ "{:,.0f}".format(total).replace(",", ".") }}<span class="currency">₫</span></p>
+            <span class="text-label">Tổng số tiền&nbsp;(<span>{{ cart_items|length }} sản phẩm</span>): 
+                <span style="display:inline-flex; align-items:center;">
+                    {{ "{:,.0f}".format(total).replace(",", ".") }}
+                    <span class="currency">₫</span>
+                </span>
+            </span>
         </div>
         <form method="POST" action="{{ url_for('main.checkout') }}">
             {% for item in cart_items %}

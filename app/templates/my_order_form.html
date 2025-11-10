@@ -27,19 +27,13 @@
 <div class="container mt-3 pt-3">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
     <h3 class="mb-0">Chi tiết đơn hàng #{{ order.id }}</h3>
-    {% if source == 'pending' %}
-    <a href="{{ url_for('admin.pending_orders') }}" class="btn btn-secondary mt-3" style="margin-right: 30px;">← Quay lại</a>
-    {% elif source == 'delivering' %}
-      <a href="{{ url_for('admin.delivery_orders') }}" class="btn btn-secondary mt-3" style="margin-right: 30px;">← Quay lại</a>
-    {% else %}
-      <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mt-3" style="margin-right: 30px;">← Quay lại</a>
-    {% endif %}
+    <a href="{{ url_for('main.my_orders') }}" class="btn btn-secondary" style="margin-right: 30px;">← Quay lại</a>
   </div>
 
-  <p><strong>Khách hàng:</strong> {{ order.customer.username }}</p>
+
   <p><strong>Ngày đặt:</strong> {{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
   <p><strong>Trạng thái:</strong> {{ order.status.value }}</p>
-  <p><strong>Tổng tiền:</strong> {{ order.total_amount }} VNĐ</p>
+  <p><strong>Tổng tiền:</strong> {{ "{:,.0f}".format(order.total_amount).replace(",", ".") }}<span class="currency">₫</span></p>
 
   <hr>
   <h5>Sản phẩm trong đơn:</h5>
@@ -63,6 +57,7 @@
       {% endfor %}
     </tbody>
   </table>
+
 
 </div>
 {% endblock %}

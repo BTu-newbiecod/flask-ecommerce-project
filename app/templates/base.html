@@ -41,34 +41,39 @@
                         </li>
                         
                         <!-- thay link gio hang -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.cart') }}">Giỏ Hàng</a>
-                        </li>
-                            {% if current_user.is_authenticated %}
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Chào, {{ current_user.username }}!
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <li><a class="dropdown-item" href="#">Hồ sơ</a></li>
-                                        {% if current_user.email == "admin@shop.com" %}
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item"  href="{{ url_for('admin.dashboard') }}">Trang quản trị</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item"  href="{{ url_for('admin.products') }}">Quản lý sản phẩm</a></li>
-                                        {% endif %}
+                        
+                        {% if current_user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('main.cart') }}">Giỏ Hàng</a>
+                            </li>
+                            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Chào, {{ current_user.username }}!
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#">Hồ sơ</a></li>
+                                    {% if current_user.email == "admin@shop.com" %}
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Đăng xuất</a></li>
-                                    </ul>
-                                </li>
-                            {% else %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ url_for('auth.login') }}">Đăng nhập</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ url_for('auth.register') }}">Đăng ký</a>
-                                </li>
-                            {% endif %}
+                                        <li><a class="dropdown-item"  href="{{ url_for('admin.dashboard') }}">Trang quản trị</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item"  href="{{ url_for('admin.products') }}">Quản lý sản phẩm</a></li>
+                                    {% else %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item"  href="{{ url_for('main.my_orders') }}">Đơn đặt</a></li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.login') }}">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.register') }}">Đăng ký</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

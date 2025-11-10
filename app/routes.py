@@ -190,7 +190,6 @@ def checkout():
 
 
 
-
 #BẤM NÚT LỊCH SỬ ĐƠN HÀNG
 @bp.route('/my-orders')
 @login_required
@@ -199,6 +198,13 @@ def my_orders():
     orders = current_user.orders.order_by(Order.order_date.desc()).all()
     return render_template('order_history.html', orders=orders)
     return render_template('product_detail.html', product=product)
+
+@bp.route('/my-order-form/<int:order_id>')
+@login_required
+def my_order_form(order_id):
+    order = Order.query.get_or_404(order_id)
+    order_items = order.items
+    return render_template('my_order_form.html', order=order, order_items=order_items)
 
 # Bo dau khi search
 def remove_accents(input_str):
