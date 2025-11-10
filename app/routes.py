@@ -16,6 +16,7 @@ bp = Blueprint('main', __name__)
 @bp.route('/index')
 def index():
     # Trang này có thể chỉ hiển thị banner, giới thiệu, nút đến sản phẩm, v.v.
+    print("ttgeg")
     return render_template("index.html")
 
 
