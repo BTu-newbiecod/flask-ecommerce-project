@@ -48,7 +48,7 @@
                   Giá: {{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span><br>
                   Tồn kho: {{ product.stock }}
                 </div>
-                <img src="{{ url_for('static', filename='images/products/' ~ product.img_file) }}"
+                <img src="{{ url_for('static', filename='assets/images/products/' + product.img_file) }}"
                      alt="{{ product.name }}"
                      class="img-thumbnail" style="width:80px; height:80px; object-fit:cover;">
               </li>

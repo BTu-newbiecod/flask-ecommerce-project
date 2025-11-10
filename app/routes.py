@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash, jsonify, current_app
+import google.generativeai as genai
 from app.models import Product, Category
 import unicodedata
 
@@ -7,6 +8,10 @@ from flask_login import login_required,current_user
 from app.models import Product, CartItem, Order, OrderItem
 
 from app import db
+
+from .forms import EditProfileForm 
+from app import db                 
+from .forms import EditProfileForm, ChangePasswordForm
 
 
 bp = Blueprint('main', __name__)
@@ -19,13 +24,6 @@ def index():
     print("ttgeg")
     return render_template("index.html")
 
-@bp.route('/api/chat', methods=['POST'])
-def chat():
-    data = request.json
-    user_msg = data.get('message')
-
-    bot_reply = f"Bạn vừa gửi: {user_msg}"
-    return jsonify({'reply': bot_reply})
 
 # 🛒 Trang danh sách sản phẩm (được tách riêng)
 @bp.route('/product_list')
@@ -257,3 +255,93 @@ def filter_product():
     products = query.all()
     categories = Category.query.all()
     return render_template('product_list.html', products=products, categories=categories)
+
+#TRANG HỒ SƠ
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+
+    is_default_admin = (current_user.email == 'admin@shop.com')
+
+    form = EditProfileForm(obj=current_user)
+
+    if form.validate_on_submit():
+        if is_default_admin:
+            flash('Tài khoản admin là mặc định không thể đổi', 'danger')
+            return redirect(url_for('main.profile'))
+
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash('Đã cập nhật hồ sơ thành công!', 'success')
+        return redirect(url_for('main.profile'))
+
+
+    return render_template('profile.html', title='Hồ sơ cá nhân', 
+                           form=form, 
+                           is_default_admin=is_default_admin)
+    # --- KẾT THÚC SỬA ---
+
+# TRANG ĐỔI MẬT KHẨU
+@bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    
+ 
+    is_default_admin = (current_user.email == 'admin@shop.com')
+
+    if form.validate_on_submit():
+    
+        if is_default_admin:
+            flash('Tài khoản admin là mặc định không thể đổi', 'danger')
+            return redirect(url_for('main.change_password'))
+        
+        # Nếu form hợp lệ, set mật khẩu mới
+        current_user.set_password(form.new_password.data)
+        db.session.commit()
+        
+        flash('Đổi mật khẩu thành công!', 'success')
+        # Đổi xong thì quay về trang hồ sơ
+        return redirect(url_for('main.profile'))
+
+    #tải trang (GET)
+    return render_template('change_password.html', 
+                           title='Đổi Mật Khẩu', 
+                           form=form, 
+                           is_default_admin=is_default_admin)
+
+@bp.route('/api/chat', methods=['POST'])
+def api_chat():
+
+    try:
+        api_key =current_app.config['GEMINI_API_KEY']
+        if not api_key:
+            return jsonify({'reply': 'Lỗi: API Key chưa được cấu hình.'}), 500
+
+        genai.configure(api_key=api_key)
+
+        model = genai.GenerativeModel('gemini-1.5-flash') 
+
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'reply': 'Lỗi: Không nhận được tin nhắn.'}), 400
+
+        user_message = data['message']
+
+        prompt = f"""
+        Bạn là một trợ lý chatbot thân thiện tên là Py, làm việc cho Pypy Store.
+        Pypy Store là một cửa hàng bán lẻ quần áo thời trang (với đủ các loại từ áo thun,áo sơ mi,polo, quần jeans,quần âu, và các phụ kiện thời trang khác).
+        Nhiệm vụ của bạn là trả lời các câu hỏi của khách hàng một cách ngắn gọn, súc tích và chuyên nghiệp.
+
+        Câu hỏi của khách hàng: "{user_message}"
+        Câu trả lời của bạn:
+        """
+
+        response = model.generate_content(prompt)
+        bot_response_text = response.text
+        return jsonify({'reply': bot_response_text})
+
+    except Exception as e:
+        print(f"Lỗi khi gọi Gemini API: {e}")
+        return jsonify({'reply': 'Xin lỗi, tôi đang gặp lỗi kỹ thuật. Vui lòng thử lại sau.'}), 500

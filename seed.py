@@ -39,7 +39,19 @@ with app.app_context():
     p4 = Product(name='Áo Thun Polo Đen', description='Áo polo vải cá sấu cao cấp.', price=280000, stock=40, category=cat1, img_file='ao_polo_den.jpg')
     p5 = Product(name='Quần Jean Rách Gối', description='Phong cách cá tính, năng động.', price=520000, stock=15, category=cat2, img_file='jean_rach_goi.jpg')
     p6 = Product(name='Thắt Lưng Da Bò', description='Thắt lưng da bò thật, khóa kim loại.', price=250000, stock=60, category=cat4, img_file='that_lung_da_bo.jpg')
-    db.session.add_all([p1, p2, p3, p4, p5, p6])
+    p7 = Product(name='Áo Hoodie Nỉ Bông', description='Chất nỉ bông dày dặn, ấm áp cho mùa đông.', price=550000, stock=20, category=cat8, img_file='hoodie_ni_bong.jpg')
+    p8 = Product(name='Quần Jogger Thể Thao', description='Vải thun co giãn, thoải mái vận động.', price=320000, stock=35, category=cat9, img_file='quan_jogger.jpg')
+    p9 = Product(name='Quần Tây Âu Slimfit', description='Lịch lãm, phù hợp môi trường công sở.', price=480000, stock=25, category=cat10, img_file='quan_tay_au.jpg')
+    p10 = Product(name='Quần Short Kaki Be', description='Năng động, trẻ trung, dễ phối đồ.', price=260000, stock=40, category=cat11, img_file='quan_short_kaki.jpg')
+    p11 = Product(name='Váy Hoa Nhí Vintage', description='Vải voan mềm mại, phong cách retro.', price=420000, stock=22, category=cat12, img_file='vay_hoa_nhi.jpg')
+    p12 = Product(name='Quần Ống Rộng Lưng Cao', description='Hack dáng, chất liệu linen thoáng mát.', price=390000, stock=30, category=cat13, img_file='quan_ong_rong.jpg')
+    p13 = Product(name='Combo 3 Quần Boxer Nam', description='Cotton 4 chiều, kháng khuẩn.', price=299000, stock=50, category=cat5, img_file='combo_boxer_nam.jpg')
+    p14 = Product(name='Mũ Lưỡi Trai Logo', description='Chất liệu Kaki, thêu logo nổi.', price=190000, stock=45, category=cat4, img_file='mu_luoi_trai.jpg')
+    p15 = Product(name='Áo Khoác Dù 2 Lớp', description='Chống nước, chống gió nhẹ, có túi trong.', price=410000, stock=30, category=cat8, img_file='ao_khoac_du.jpg')
+    db.session.add_all([
+        p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, 
+        p11, p12, p13, p14, p15
+    ])
     db.session.commit()
 
     order1 = Order(status=OrderStatus.COMPLETED, total_amount=630000, customer=user2, order_date=datetime.utcnow() - timedelta(days=5))

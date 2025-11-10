@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,BooleanField,SubmitField,TextAreaField,FloatField,IntegerField
-from wtforms.validators import DataRequired,Length,Email,EqualTo,NumberRange
+from wtforms.validators import DataRequired,Length,Email,EqualTo,NumberRange,ValidationError
+from flask_login import current_user
+from app.models import User
 
 class LoginForm(FlaskForm):
     email=StringField('email',validators=[DataRequired(),Email()])
@@ -25,3 +27,37 @@ class ProductForm(FlaskForm):
     img_file = StringField('Tên file ảnh')
     submit = SubmitField('Lưu')
     pass
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Tên đăng nhập',validators=[DataRequired(), Length(min=4, max=64)])
+    
+    email = StringField('Email',validators=[DataRequired(), Email()])
+
+    submit = SubmitField('Cập nhật hồ sơ')
+
+    #kiểm tra xem username mới có bị trùng không
+    def validate_username(self, username):
+        if username.data != current_user.username:
+            user = User.query.filter_by(username=username.data).first()
+            if user:
+                raise ValidationError('Tên đăng nhập này đã có người sử dụng.')
+    #kiểm tra xem email mới có bị trùng không
+    def validate_email(self, email):
+        if email.data != current_user.email:
+            user = User.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('Email này đã có người sử dụng.')
+            
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField('Mật khẩu hiện tại', validators=[DataRequired()])
+    
+    new_password = PasswordField('Mật khẩu mới', validators=[DataRequired(), Length(min=6)])
+    
+    confirm_password = PasswordField('Xác nhận mật khẩu mới', validators=[DataRequired(), EqualTo('new_password', message='Mật khẩu không khớp.')])
+    
+    submit = SubmitField('Đổi mật khẩu')
+
+    # Hàm kiểm tra mật khẩu cũ có đúng không
+    def validate_old_password(self, old_password):
+        if not current_user.check_password(old_password.data):
+            raise ValidationError('Mật khẩu hiện tại không đúng.')

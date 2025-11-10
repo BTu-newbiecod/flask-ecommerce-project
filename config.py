@@ -12,4 +12,5 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
     
+    GEMINI_API_KEY = 'AIzaSyAGWOoFGe3SffZa6MINF0h7ZEl-Aic3E_I'
     

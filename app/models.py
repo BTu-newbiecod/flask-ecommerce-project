@@ -9,6 +9,12 @@ class User(db.Model, UserMixin):
     username=db.Column(db.String(100),unique=True,nullable=False)
     email=db.Column(db.String(100),unique=True,nullable=False)
     password=db.Column(db.String(100),nullable=False)
+                       
+    def set_password(self, new_password_text):
+        self.password = new_password_text
+
+    def check_password(self, password_to_check):
+        return self.password == password_to_check
 
     #them tham chieu nguoc
     orders=db.relationship('Order',backref='customer',lazy='dynamic')

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ của bạn{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        
+        <div class="card shadow-sm">
+            
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-user-edit me-2"></i>Chỉnh sửa hồ sơ
+                </h3>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                
+                {% if is_default_admin %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Tài khoản Admin mặc định không thể thay đổi thông tin.
+                </div>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('main.profile') }}" novalidate>
+                    {{ form.hidden_tag() }} 
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-2 text-muted"></i>Tên đăng nhập
+                        </label>
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), 
+                                         disabled=is_default_admin) }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-2 text-muted"></i>Email
+                        </label>
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), 
+                                      disabled=is_default_admin) }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-grid">
+                       {{ form.submit(class="btn btn-primary btn-lg", 
+                                      disabled=is_default_admin) }}
+                    </div>
+                </form>
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <a href="{{ url_for('main.change_password') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-key me-2"></i>
+                        Đổi Mật Khẩu
+                    </a>
+                </div>
+                
+            </div> </div> </div> </div> {% endblock %}
