@@ -233,7 +233,7 @@
                     <span class="desc-text">{{ product.description or "Chưa có mô tả cho sản phẩm này." }}</span>
                 </p>
                 {%if product.stock > 0 %}
-                    <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+                    <form id="add-to-cart-form" action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
                         <p class="product-description" style="margin-bottom: 0.5rem !important">
                             <span class="desc-label">Số lượng:</span>
 
@@ -262,6 +262,13 @@
 
 {% block scripts %}
 <script>
+    document.getElementById("add-to-cart-form").addEventListener("submit", function(e) {
+        {% if not current_user.is_authenticated %}
+            e.preventDefault();  // ngăn form submit
+            window.location.href = "{{ url_for('auth.login') }}"; // chuyển sang login
+        {% endif %}
+    });
+
     var stock = {{ product.stock or 0 }};
 
     function updateQuantity(action) 
