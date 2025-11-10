@@ -19,6 +19,13 @@ def index():
     print("ttgeg")
     return render_template("index.html")
 
+@bp.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.json
+    user_msg = data.get('message')
+
+    bot_reply = f"Bạn vừa gửi: {user_msg}"
+    return jsonify({'reply': bot_reply})
 
 # 🛒 Trang danh sách sản phẩm (được tách riêng)
 @bp.route('/product_list')

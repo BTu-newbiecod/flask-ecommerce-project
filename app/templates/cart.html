@@ -7,6 +7,7 @@
     <style>
 
     body {
+        height: 110vh;
         background-color: #f5f5f5 !important;
     }
 
@@ -232,8 +233,8 @@
         z-index: 100;
     }
 
-    .login-button-link { color: #676767; }
-    .login-button-link:hover{ color: #2d2d2d !important; }
+    .login-button-link { color: #e96666; }
+    .login-button-link:hover{ color: #dc1616 !important }
 
 </style>
 
@@ -305,9 +306,9 @@
         <button id="checkout-btn" class="btn-purchase" style="font-size: large">Thanh toán</button>
     </div>
     {% else %}
-    <div style="text-align: center; margin-top: 100px;">
+    <div style="text-align: center; margin-top: 100px;">Giỏ hàng của bạn còn trống!
         <a href="{{ url_for('main.product_list') }}" class="btn btn-link align-baseline p-0 login-button-link">
-            Chưa đặt hàng sản phẩm nào! Bạn có muốn đi mua sắm tiếp?
+            Đi mua ngay?
         </a>
     </div>
 
