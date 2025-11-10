@@ -34,7 +34,10 @@
                             <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'main.products' %}active{% endif %}" href="#">Sản Phẩm</a>
+                            <a class="nav-link {% if request.endpoint == 'main.product_list' %}active{% endif %}" 
+                            href="{{ url_for('main.product_list') }}">
+                            Sản Phẩm
+                            </a>
                         </li>
                         
                         <!-- thay link gio hang -->

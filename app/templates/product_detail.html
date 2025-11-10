@@ -217,6 +217,7 @@
 <div class="product-page">
     <div class="product-wrapper">
         <div class="breadcrumb mb-3">
+            <a href="{{ url_for('main.product_list') }}" class="text-danger">Trang chủ </a> &nbsp;>&nbsp;
             <a href="{{ url_for('main.index') }}">Trang chủ </a> &nbsp;>&nbsp;
             <a href="{{ url_for('main.filter_product') }}?category={{ product.category.id }}&min_price=&max_price=">{{  product.category.name }}</a>  &nbsp;>&nbsp;
             <span>{{ product.name }}</span>

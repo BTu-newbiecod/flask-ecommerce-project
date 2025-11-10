@@ -211,3 +211,33 @@ def delete_product(product_id):
         print(f"Lỗi khi xóa sản phẩm: {e}")
         db.session.rollback()
         return "Lỗi khi xóa sản phẩm", 500
+
+# Xem danh sách đơn hàng chờ xử lý
+@bp.route('/pending_orders')
+@login_required
+@admin_required
+def pending_orders():
+    orders = Order.query.filter_by(status=OrderStatus.PENDING) \
+        .order_by(Order.order_date.asc()).all()  # đơn sớm nhất lên đầu
+    return render_template('admin/pending_orders.html', orders=orders)
+
+
+# Xem danh sách đơn hàng đang giao
+@bp.route('/delivery_orders')
+@login_required
+@admin_required
+def delivery_orders():
+    orders = Order.query.filter_by(status=OrderStatus.SHIPPING) \
+        .order_by(Order.order_date.asc()).all()
+    return render_template('admin/delivery_orders.html', orders=orders)
+
+
+@bp.route('/admin/order/<int:order_id>')
+@login_required
+def order_form(order_id):
+    order = Order.query.get_or_404(order_id)
+    order_items = order.items
+    # Lấy biến source từ query string ?source=pending hoặc ?source=delivering
+    source = request.args.get('source', None)
+    return render_template('admin/order_form.html', order=order, order_items=order_items, source=source)
+

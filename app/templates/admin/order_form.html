@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Chi tiết đơn hàng #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-3 pt-3">
+  <h3 class="mb-4">Chi tiết đơn hàng #{{ order.id }}</h3>
+
+  <p><strong>Khách hàng:</strong> {{ order.customer.username }}</p>
+  <p><strong>Ngày đặt:</strong> {{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
+  <p><strong>Trạng thái:</strong> {{ order.status.value }}</p>
+  <p><strong>Tổng tiền:</strong> {{ order.total_amount }} VNĐ</p>
+
+  <hr>
+  <h5>Sản phẩm trong đơn:</h5>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Tên sản phẩm</th>
+        <th>Số lượng</th>
+        <th>Giá</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order_items %}
+      <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.price }} VNĐ</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if source == 'pending' %}
+    <a href="{{ url_for('admin.pending_orders') }}" class="btn btn-secondary mt-3">← Quay lại</a>
+  {% elif source == 'delivering' %}
+    <a href="{{ url_for('admin.delivery_orders') }}" class="btn btn-secondary mt-3">← Quay lại</a>
+  {% else %}
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mt-3">← Quay lại</a>
+  {% endif %}
+
+</div>
+{% endblock %}
