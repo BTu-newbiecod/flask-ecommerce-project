@@ -249,7 +249,7 @@
         function appendMessage(text, sender) {
             const msgDiv = document.createElement('div');
             msgDiv.className = sender === 'user' ? 'user-msg' : 'bot-msg';
-            msgDiv.textContent = text;
+            msgDiv.innerHTML = text;
             document.getElementById('chatbot-messages').appendChild(msgDiv);
             msgDiv.scrollIntoView({ behavior: "smooth" });
         }
