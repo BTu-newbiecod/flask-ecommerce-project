@@ -8,25 +8,22 @@
         body {
             background-color: #f5f5f5 !important;
         }
-
         p {
             margin-top: 0;
             margin-bottom: 0.125rem;
         }
-
-        
         .row-container {
             display: flex;
             gap: 10px;
             justify-content: start;
-            align-items: center; /* đảm bảo căn giữa dọc */
+            align-items: center;
             background-color: white;
-            padding: 0 2rem; /* chỉnh padding top-bottom = 0 để không lệch dọc */
+            padding: 0 2rem;
             height: 55px;
             border-radius: 3px;
             margin-bottom: 15px;
         }
-
+        /* (Giữ lại toàn bộ các class CSS khác của bạn: .text-product, .text-price, ... ) */
         .text-product {
             padding: 10px 15px;
             width: 700px;
@@ -34,7 +31,6 @@
             justify-content: start;
             align-items: center;
         }
-
         .text-price {
             padding: 10px 20px;
             width: 125px;
@@ -42,7 +38,6 @@
             justify-content: center;
             align-items: center; 
         }
-    
         .text-amount {
             padding: 10px 20px;
             width: 200px;
@@ -50,98 +45,162 @@
             justify-content: center;
             align-items: center; 
         }
-
         .text-total {
             padding: 10px 20px;
             width: 150px;
             display: flex;
             justify-content: center;
             align-items: center; 
-        }   
-
-        .btn-volumn
-        {
+        }   
+        .btn-volumn {
             width: 30px;
             height: 30px;
             border: 1px solid #a6a6a6;
             background-color: #f9f9f9;
             padding-bottom: 3px;
         }
-
-        .text-field-amount
-        {
+        .text-field-amount {
             width: 50px;
             height: 30px;
-            text-align: center;  
+            text-align: center;  
         }
-
-        .text-label
-        {
+        .text-label {
             font-size: large;
             font-weight: 500;
         }
-
-        .btn-purchase
-        {
+        .btn-purchase {
             width: 150px;
             height: 40px;
             display: flex;
             justify-content: center;
             align-items: center; 
             transition: all 0.3s ease;
-            background-color: #424242;     
-            color: #e1e1e1;;   
-            cursor: pointer;      
-            font-size: 1rem;  
+            background-color: #424242;     
+            color: #e1e1e1;;   
+            cursor: pointer;      
+            font-size: 1rem;  
             margin-left: auto;
+            border: none; /* Thêm để đảm bảo nó là nút */
         }
-
-        .btn-purchase:hover
-        {
+        .btn-purchase:hover {
             background-color: #000000; 
         }
-
         .currency {
             font-size: 0.75em;
             vertical-align: middle;
             position: relative;
             top: -1.5px;
-            margin-left: 1px;      
+            margin-left: 1px;      
         }
-        
         .field-purchase {
             display: flex;
-            flex-direction: column;    
-            align-items: flex-end;  
-            gap: 10px;                   
+            flex-direction: column;    
+            align-items: flex-end;  
+            gap: 10px;                   
             margin-top: 25px;
-            margin-right: 15px;     
+            margin-right: 15px;     
         }
-
         .order-header {
-            text-align: center;      
-            font-size: 2rem;         
-            font-weight: bold;      
+            text-align: center;      
+            font-size: 2rem;         
+            font-weight: bold;      
             margin-top: 0;
-            margin-bottom: 20px;            
-            color: #333;              
+            margin-bottom: 20px;            
+            color: #333;              
         }
-
-
-
+        /* Thêm CSS cho khối địa chỉ */
+        .address-box {
+            background-color: #ffffff;
+            padding: 1.5rem 2rem;
+            border-radius: 3px;
+            margin-bottom: 15px;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
-    <h2 class="order-header">Đơn đặt hàng</h2>
+<h2 class="order-header">Đơn đặt hàng</h2>
 
-    <div class="row-container text-label" style="background-color: #424242; height: 65px;"> 
+<form method="POST" action="{{ url_for('main.checkout') }}" novalidate>
+    
+    {% for item in cart_items %}
+        <input type="hidden" name="selected_items" value="{{ item.id }}">
+    {% endfor %}
+    
+    {{ address_form.hidden_tag() }}
+
+    <div class="address-box shadow-sm">
+        <h4 class="mb-3 text-label" style="color: #424242;">
+            <i class="fas fa-map-marker-alt me-2"></i>
+            Địa chỉ giao hàng
+        </h4>
+        
+        {% if saved_addresses %}
+            {% for addr in saved_addresses %}
+            <div class="form-check card card-body mb-2 shadow-none">
+                <input class="form-check-input" type="radio" name="address_choice" id="addr-{{ addr.id }}" value="{{ addr.id }}" 
+                       {% if addr.is_default and not show_new_address_form %}checked{% endif %}
+                       onclick="toggleNewAddressForm(false)">
+                <label class="form-check-label w-100" for="addr-{{ addr.id }}">
+                    <strong>{{ addr.recipient_name }}</strong>
+                    {% if addr.is_default %}<span class="badge bg-success ms-2">Mặc định</span>{% endif %}
+                    <p class="mb-0">{{ addr.phone_number }}</p>
+                    <p class="text-muted mb-0">{{ addr.street_address }}, {{ addr.city }}</p>
+                </label>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-check card card-body mb-3 shadow-none">
+            <input class="form-check-input" type="radio" name="address_choice" id="addr-new" value="new" 
+                   {% if show_new_address_form %}checked{% endif %}
+                   onclick="toggleNewAddressForm(true)">
+            <label class="form-check-label" for="addr-new">
+                <strong>Giao đến địa chỉ mới</strong>
+            </label>
+        </div>
+
+        <div id="new-address-form" 
+             class="p-3 border rounded" 
+             style="display: {% if show_new_address_form %}block{% else %}none{% endif %};">
+            
+            <h5 class="mb-3">Thông tin địa chỉ mới</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {{ address_form.recipient_name.label(class="form-label") }}
+                    {{ address_form.recipient_name(class="form-control" + (" is-invalid" if address_form.recipient_name.errors else "")) }}
+                    <div class="invalid-feedback">{% for error in address_form.recipient_name.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                </div>
+                <div class="col-md-6">
+                    {{ address_form.phone_number.label(class="form-label") }}
+                    {{ address_form.phone_number(class="form-control" + (" is-invalid" if address_form.phone_number.errors else "")) }}
+                    <div class="invalid-feedback">{% for error in address_form.phone_number.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                </div>
+                <div class="col-12">
+                    {{ address_form.city.label(class="form-label") }}
+                    {{ address_form.city(class="form-control" + (" is-invalid" if address_form.city.errors else "")) }}
+                    <div class="invalid-feedback">{% for error in address_form.city.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                </div>
+                <div class="col-12">
+                    {{ address_form.street_address.label(class="form-label") }}
+                    {{ address_form.street_address(class="form-control" + (" is-invalid" if address_form.street_address.errors else ""), rows=3) }}
+                    <div class="invalid-feedback">{% for error in address_form.street_address.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        {{ address_form.is_default(class="form-check-input") }}
+                        {{ address_form.is_default.label(class="form-check-label") }}
+                        <small class="text-muted d-block">(Nếu chọn, địa chỉ này sẽ được lưu vào Sổ Địa Chỉ của bạn)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <div class="row-container text-label" style="background-color: #424242; height: 65px; margin-top: 30px;"> 
         <p class="text-product" style="color: #ffffff;">Sản phẩm</p>
         <p class="text-price" style="color: #ffffff;">Đơn giá</p>
         <p class="text-amount" style="color: #ffffff;">Số lượng</p>
         <p class="text-total" style="color: #ffffff;">Thành tiền</p>
-    </div>  
-
+    </div> 	
 
     {% for cart_item in cart_items %}
         <div class="row-container"> 
@@ -149,17 +208,13 @@
                 <img src="{{ url_for('static', filename='assets/images/products/' + cart_item.product.img_file) }}" alt="{{ cart_item.product.name }}" style="width:50px; height:50px; margin-right:10px;">
                 <span>{{ cart_item.product.name }}</span>
             </a>
-            
             <p class="text-price">
                 {{ "{:,.0f}".format(cart_item.product.price).replace(",", ".") }}<span class="currency">₫</span>
             </p>
-
             <p class="text-amount">{{ cart_item.quantity }}</p>
-            
             <p class="text-total">{{ "{:,.0f}".format(cart_item.product.price * cart_item.quantity).replace(",", ".") }}<span class="currency">₫</span></p>
         </div>
     {% endfor %}
-
 
     <div class="field-purchase">
         <div style="text-align: right; background-color: #cdcdcd; margin-right: -5px; margin-bottom: 5px; padding: 10px 10px;">
@@ -170,17 +225,25 @@
                 </span>
             </span>
         </div>
-        <form method="POST" action="{{ url_for('main.checkout') }}">
-            {% for item in cart_items %}
-                <input type="hidden" name="selected_items" value="{{ item.id }}">
-            {% endfor %}
-            <button type="submit" class="btn-purchase">Xác nhận đặt hàng</button>
-        </form>
+        <button type="submit" class="btn-purchase" style="margin-right: -5px;">Xác nhận đặt hàng</button>
     </div>
 
-
-
+</form>
 {% endblock %}
 
 {% block scripts %}
+{{ super() }} <script>
+    // JavaScript để ẩn/hiện form địa chỉ mới
+    function toggleNewAddressForm(show) {
+        var form = document.getElementById('new-address-form');
+        if (show) {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+    {% if show_new_address_form %}
+        document.getElementById('addr-new').checked = true;
+    {% endif %}
+</script>
 {% endblock %}

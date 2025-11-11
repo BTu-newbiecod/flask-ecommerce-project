@@ -61,3 +61,16 @@ class ChangePasswordForm(FlaskForm):
     def validate_old_password(self, old_password):
         if not current_user.check_password(old_password.data):
             raise ValidationError('Mật khẩu hiện tại không đúng.')
+        
+class AddressForm(FlaskForm):
+    recipient_name = StringField('Họ và tên người nhận',validators=[DataRequired(), Length(max=100)])
+    
+    phone_number = StringField('Số điện thoại', validators=[DataRequired(), Length(max=20)])
+    
+    street_address = TextAreaField('Địa chỉ chi tiết (Số nhà, đường, phường/xã)', validators=[DataRequired(), Length(max=255)])
+    
+    city = StringField('Tỉnh / Thành phố', validators=[DataRequired(), Length(max=100)])
+    
+    is_default = BooleanField('Đặt làm địa chỉ mặc định')
+    
+    submit = SubmitField('Lưu Địa Chỉ')

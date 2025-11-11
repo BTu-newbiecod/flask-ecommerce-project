@@ -292,26 +292,31 @@
         </div>
     {% endfor %}
     {% if cart_items %}
-    <div class="row-container text-label sticky-bottom">
-        <input type="checkbox" id="choose-all-bot" hidden>
+    <div class="row-container text-label sticky-bottom" style="padding-right: 2rem;"> <input type="checkbox" id="choose-all-bot" hidden>
         <label for="choose-all-bot" class="btn-chosen"></label>
+        
         <p class="text-product">Chọn tất cả (<span>{{ cart_items|length }}</span>)
             <button id="delete-selected-btn" class="btn-action text-label" style="margin-left: 15px;">Xóa</button>
         </p>
         
-
-        <div id="checkout-summary" style="margin-left: auto; margin-right: -150px;">
-            Tổng cộng (<span id="selected-count">0</span>&nbsp;sản phẩm):&nbsp; <span id="selected-total">0</span><span class="currency">₫</span>
+        <div id="checkout-summary" style="margin-left: auto; margin-right: 20px;">
+            <span class="text-label">Tổng cộng (<span id="selected-count">0</span>&nbsp;sản phẩm):&nbsp;</span>
+            
+            <span style="font-size: 1.3rem; font-weight: bold; color: #333;">
+                <span id="selected-total">0</span><span class="currency">₫</span>
+            </span>
         </div>
-        <button id="checkout-btn" class="btn-purchase" style="font-size: large">Thanh toán</button>
-    </div>
+        
+        <button id="checkout-btn" class="btn-purchase" style="font-size: large; margin-left: 0;">
+            Thanh toán
+        </button>
+        </div>
     {% else %}
-    <div style="text-align: center; margin-top: 100px;">Giỏ hàng của bạn còn trống!
-        <a href="{{ url_for('main.product_list') }}" class="btn btn-link align-baseline p-0 login-button-link">
-            Đi mua ngay?
-        </a>
-    </div>
-
+        <div style="text-align: center; margin-top: 100px;">Giỏ hàng của bạn còn trống!
+            <a href="{{ url_for('main.product_list') }}" class="btn btn-link align-baseline p-0 login-button-link">
+                Đi mua ngay?
+            </a>
+        </div>
     {% endif %}
 
 

@@ -1,18 +1,22 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, current_app
+
 import google.generativeai as genai
+
 from app.models import Product, Category
+
 import unicodedata
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+
 from flask_login import login_required,current_user
-from app.models import Product, CartItem, Order, OrderItem
+
+from app.models import Product, CartItem, Order, OrderItem,Address
 
 from app import db
 
-from .forms import EditProfileForm 
-from app import db                 
-from .forms import EditProfileForm, ChangePasswordForm
+from app import db                
 
+from .forms import EditProfileForm, ChangePasswordForm,AddressForm
 
 bp = Blueprint('main', __name__)
 
@@ -147,52 +151,116 @@ def update_cart(cart_item_id):
 @login_required
 def checkout():
     if request.method == 'GET':
-        # Lấy danh sách selected_items từ query params
-        selected_ids = request.args.getlist("selected_items") 
-        selected_ids = list(map(int, selected_ids))
+        selected_ids = request.args.getlist("selected_items")
+    else: 
+        selected_ids = request.form.getlist("selected_items")
         
-        cart_items = CartItem.query.filter(CartItem.id.in_(selected_ids)).all()
-        
-        if not cart_items:
-            flash('Giỏ hàng của bạn đang trống. Hãy thêm sản phẩm trước!', 'info')
-            return redirect(url_for('main.index'))
-        
-        total_price = sum(item.product.price * item.quantity for item in cart_items)
-        return render_template('checkout.html', cart_items=cart_items, total=total_price)
-    
-    # POST: Xác nhận đặt hàng
-    selected_ids = request.form.getlist("selected_items") 
+    if not selected_ids:
+        flash('Giỏ hàng của bạn đang trống. Hãy thêm sản phẩm trước!', 'info')
+        return redirect(url_for('main.cart')) 
+
     selected_ids = list(map(int, selected_ids))
-    cart_items = CartItem.query.filter(CartItem.id.in_(selected_ids)).all()
+
+    cart_items = CartItem.query.filter(CartItem.id.in_(selected_ids), CartItem.user_id == current_user.id).all()
     
     if not cart_items:
-        flash('Giỏ hàng của bạn đang trống. Hãy thêm sản phẩm trước!', 'info')
-        return redirect(url_for('main.index'))
+        flash('Không tìm thấy sản phẩm đã chọn trong giỏ hàng.', 'warning')
+        return redirect(url_for('main.cart'))
 
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
-    try:
-        new_order = Order(customer=current_user, total_amount=total_price)
-        db.session.add(new_order)
-        
-        for item in cart_items:
-            order_item = OrderItem(
-                order=new_order,
-                product_id=item.product_id,
-                quantity=item.quantity,
-                price_per_item=item.product.price
-            )
-            db.session.add(order_item)
-            db.session.delete(item)
-        
-        db.session.commit()
-        flash('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.', 'success')
-        return redirect(url_for('main.my_orders'))  # chuyển đến lịch sử đơn hàng
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Đã có lỗi xảy ra khi đặt hàng: {str(e)}', 'danger')
-        return redirect(url_for('main.cart'))  # quay lại giỏ hàng nếu lỗi
+    saved_addresses = current_user.addresses.order_by(Address.is_default.desc()).all()
+    address_form = AddressForm()
+    if request.method == 'POST':
+        chosen_address_id = 0 
+        address_choice = request.form.get('address_choice')
 
+        try:
+            if address_choice == 'new':
+     
+                if address_form.validate_on_submit():
+                    # Xử lý logic "địa chỉ mặc định"
+                    if address_form.is_default.data:
+                        old_default = current_user.addresses.filter_by(is_default=True).first()
+                        if old_default:
+                            old_default.is_default = False
+                            db.session.add(old_default)
+                            
+                    new_addr = Address(
+                        recipient_name=address_form.recipient_name.data,
+                        phone_number=address_form.phone_number.data,
+                        street_address=address_form.street_address.data,
+                        city=address_form.city.data,
+                        is_default=address_form.is_default.data,
+                        user_id=current_user.id
+                    )
+                    db.session.add(new_addr)
+               
+                    db.session.commit()
+                    chosen_address_id = new_addr.id
+                else:
+                    flash('Vui lòng kiểm tra lại thông tin địa chỉ mới.', 'danger')
+                    return render_template('checkout.html', 
+                                           cart_items=cart_items, 
+                                           total=total_price,
+                                           saved_addresses=saved_addresses,
+                                           address_form=address_form,
+                                           selected_ids=selected_ids,                     
+                                           show_new_address_form=True)
+            elif address_choice and address_choice.isdigit():
+                chosen_address_id = int(address_choice)
+                addr_check = Address.query.filter_by(id=chosen_address_id, user_id=current_user.id).first()
+                if not addr_check:
+                    flash('Địa chỉ không hợp lệ!', 'danger')
+                    return redirect(url_for('main.cart'))
+            else:
+                flash('Vui lòng chọn hoặc nhập địa chỉ giao hàng.', 'danger')
+                return render_template('checkout.html', 
+                                       cart_items=cart_items, 
+                                       total=total_price,
+                                       saved_addresses=saved_addresses,
+                                       address_form=address_form,
+                                       selected_ids=selected_ids,
+                                       show_new_address_form=False)
+            new_order = Order(
+                customer=current_user, 
+                total_amount=total_price,
+                # *** DÒNG QUAN TRỌNG NHẤT ***
+                shipping_address_id=chosen_address_id 
+            )
+            db.session.add(new_order)
+            
+       
+            for item in cart_items:
+                order_item = OrderItem(
+                    order=new_order,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price_per_item=item.product.price
+                )
+                db.session.add(order_item)
+                db.session.delete(item)
+            
+            db.session.commit() 
+            
+            flash('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.', 'success')
+            return redirect(url_for('main.my_orders'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Đã có lỗi xảy ra khi đặt hàng: {str(e)}', 'danger')
+            return redirect(url_for('main.cart'))
+
+    # --- XỬ LÝ KHI TẢI TRANG (GET) ---
+    return render_template('checkout.html', 
+                           title="Thanh Toán",
+                           cart_items=cart_items, 
+                           total=total_price,
+                           saved_addresses=saved_addresses,
+                           address_form=address_form,
+                           selected_ids=selected_ids,
+                           # Ban đầu, không hiện form thêm mới (trừ khi không có địa chỉ nào)
+                           show_new_address_form=(not saved_addresses))
 
 
 #BẤM NÚT LỊCH SỬ ĐƠN HÀNG
@@ -260,10 +328,12 @@ def filter_product():
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-
-    is_default_admin = (current_user.email == 'admin@shop.com')
-
     form = EditProfileForm(obj=current_user)
+    
+    # Lấy thêm danh sách địa chỉ
+    addresses = current_user.addresses.order_by(Address.is_default.desc()).all()
+    
+    is_default_admin = (current_user.email == 'admin@shop.com')
 
     if form.validate_on_submit():
         if is_default_admin:
@@ -276,11 +346,10 @@ def profile():
         flash('Đã cập nhật hồ sơ thành công!', 'success')
         return redirect(url_for('main.profile'))
 
-
     return render_template('profile.html', title='Hồ sơ cá nhân', 
                            form=form, 
+                           addresses=addresses, # <-- Gửi thêm địa chỉ
                            is_default_admin=is_default_admin)
-    # --- KẾT THÚC SỬA ---
 
 # TRANG ĐỔI MẬT KHẨU
 @bp.route('/change-password', methods=['GET', 'POST'])
@@ -345,3 +414,84 @@ def api_chat():
     except Exception as e:
         print(f"Lỗi khi gọi Gemini API: {e}")
         return jsonify({'reply': 'Xin lỗi, tôi đang gặp lỗi kỹ thuật. Vui lòng thử lại sau.'}), 500
+    
+
+# ----- LOGIC SỔ ĐỊA CHỈ -----
+
+#HÀM XỬ LÝ LƯU ĐỊA CHỈ
+@bp.route('/add-address', methods=['GET', 'POST'])
+@login_required
+def add_address():
+    form = AddressForm()
+    
+    if form.validate_on_submit():
+        if form.is_default.data:
+            old_default = current_user.addresses.filter_by(is_default=True).first()
+            if old_default:
+                old_default.is_default = False
+                db.session.add(old_default)
+
+        # Tạo địa chỉ mới
+        new_addr = Address(
+            recipient_name=form.recipient_name.data,
+            phone_number=form.phone_number.data,
+            street_address=form.street_address.data,
+            city=form.city.data,
+            is_default=form.is_default.data,
+            user_id=current_user.id
+        )
+        db.session.add(new_addr)
+        db.session.commit()
+        
+        flash('Đã thêm địa chỉ mới thành công!', 'success')
+        return redirect(url_for('main.profile', _anchor='address-tab'))
+        
+    return render_template('add_edit_address.html', 
+                           title="Thêm Địa Chỉ Mới", 
+                           form=form,
+                           legend="Thêm Địa Chỉ Mới")
+
+#TRANG SỬA ĐỊA CHỈ
+@bp.route('/edit-address/<int:address_id>', methods=['GET', 'POST'])
+@login_required
+def edit_address(address_id):
+    addr = Address.query.get_or_404(address_id)
+    if addr.user_id != current_user.id:
+        flash('Bạn không có quyền sửa địa chỉ này.', 'danger')
+        return redirect(url_for('main.manage_addresses'))
+    form = AddressForm(obj=addr)
+    
+    if form.validate_on_submit():
+        if form.is_default.data:
+            old_default = current_user.addresses.filter_by(is_default=True).first()
+            if old_default and old_default.id != addr.id:
+                old_default.is_default = False
+                db.session.add(old_default)
+        addr.recipient_name = form.recipient_name.data
+        addr.phone_number = form.phone_number.data
+        addr.street_address = form.street_address.data
+        addr.city = form.city.data
+        addr.is_default = form.is_default.data
+        
+        db.session.commit()
+        flash('Cập nhật địa chỉ thành công!', 'success')
+        return redirect(url_for('main.profile', _anchor='address-tab'))
+
+    return render_template('add_edit_address.html', 
+                           title="Chỉnh Sửa Địa Chỉ", 
+                           form=form,
+                           legend="Chỉnh Sửa Địa Chỉ")
+
+#HÀNH ĐỘNG XÓA ĐỊA CHỈ
+@bp.route('/delete-address/<int:address_id>', methods=['POST'])
+@login_required
+def delete_address(address_id):
+    addr = Address.query.get_or_404(address_id)
+    if addr.user_id != current_user.id:
+        flash('Bạn không có quyền xóa địa chỉ này.', 'danger')
+        return redirect(url_for('main.profile', _anchor='address-tab'))
+    
+    db.session.delete(addr)
+    db.session.commit()
+    flash('Đã xóa địa chỉ.', 'info')
+    return redirect(url_for('main.profile', _anchor='address-tab'))
