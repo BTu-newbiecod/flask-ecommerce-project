@@ -84,6 +84,13 @@
             object-fit: contain;
         }
 
+        .old-price {
+            color: #6c757d;
+            text-decoration: line-through;
+            font-size: 17px;
+            margin-left: 10px;
+        }
+
         .price-text {
             color: #e60000;
             font-weight: 500;
@@ -192,7 +199,12 @@
               <img src="{{ url_for('static', filename='assets/images/products/' + product.img_file) }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text price-text">{{ "{:,.0f}".format(product.price).replace(",", ".") }}đ</p>
+                        <p class="card-text">
+                            <span class="price-text">{{ "{:,.0f}".format(product.price).replace(",", ".") }}đ</span>
+                            {% if product.old_price %}
+                                <span class="old-price">{{ "{:,.0f}".format(product.old_price).replace(",", ".") }}đ</span>
+                            {% endif %}
+                        </p>
                         {%if product.stock > 0 %}
                             <p class="stock-text text-success"> Còn hàng </p>
                         {% else %}

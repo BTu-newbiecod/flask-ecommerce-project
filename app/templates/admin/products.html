@@ -45,7 +45,12 @@
                   data-img="{{ url_for('static', filename='images/products/' ~ product.img_file) }}">
                 <div>
                   <strong>{{ product.name }}</strong><br>
-                  Giá: {{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span><br>
+                  {% if product.old_price %}
+                    Giá cũ: {{ "{:,.0f}".format(product.old_price).replace(",", ".") }}<span class="currency">₫</span><br>
+                  {% else %}
+                    Giá cũ: Chưa có<br>
+                  {% endif %}
+                  Giá mới: {{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span><br>
                   Tồn kho: {{ product.stock }}
                 </div>
                 <img src="{{ url_for('static', filename='assets/images/products/' + product.img_file) }}"

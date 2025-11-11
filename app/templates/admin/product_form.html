@@ -11,7 +11,13 @@
   </div>
 
   <div class="mb-3">
-    <label for="price" class="form-label">Giá (VNĐ)</label>
+    <label for="old-price" class="form-label">Giá cũ (VNĐ)</label>
+    <input type="number" class="form-control" id="old-price" name="old-price"
+           value="{{ product.old_price if product else '' }}" min="0" step="1000">
+  </div>
+
+  <div class="mb-3">
+    <label for="price" class="form-label">Giá mới (VNĐ)</label>
     <input type="number" class="form-control" id="price" name="price"
            value="{{ product.price if product else '' }}" min="0" step="1000" required>
   </div>

@@ -217,7 +217,7 @@ def remove_accents(input_str):
     return ''.join([c for c in nfkd_form if not unicodedata.combining(c)])
 
 
-# 🔍 Tìm kiếm sản phẩm
+# Tìm kiếm sản phẩm
 @bp.route('/search', methods=['GET'])
 def search_product():
     query = request.args.get('q', '').strip()
@@ -237,7 +237,7 @@ def search_product():
     return render_template('product_list.html', products=products, query=query, categories=categories)
 
 
-# 🧭 Lọc sản phẩm theo danh mục / giá
+# Lọc sản phẩm theo danh mục / giá
 @bp.route('/filter', methods=['GET'])
 def filter_product():
     category_id = request.args.get('category', type=int)

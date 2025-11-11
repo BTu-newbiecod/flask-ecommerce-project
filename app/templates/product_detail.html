@@ -61,6 +61,13 @@
         padding-bottom: 0.3rem;
     }
 
+    .product-info .old-price {
+        color: #6c757d;
+        text-decoration: line-through;
+        font-size: 20px;
+        margin-left: 15px;
+    }
+
     .product-price {
         color: #e60000;
         font-size: 1.75rem;
@@ -227,7 +234,10 @@
             
             <div class="product-info">
                 <h2>{{ product.name }}</h2>
-                <div class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span></div>
+                <span class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span></span>
+                {% if product.old_price %}
+                    <span class="old-price">{{ "{:,.0f}".format(product.old_price).replace(",", ".") }}<span class="currency">₫</span></span>
+                {% endif %}
                 <p class="product-description">
                     <span class="desc-label">Mô tả sản phẩm:</span>
                     <span class="desc-text">{{ product.description or "Chưa có mô tả cho sản phẩm này." }}</span>

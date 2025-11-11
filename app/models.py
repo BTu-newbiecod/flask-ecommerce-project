@@ -32,6 +32,7 @@ class Product(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(100),nullable=False)
     description=db.Column(db.Text)
+    old_price=db.Column(db.Float,nullable=True)
     price=db.Column(db.Float,nullable=False)
     stock=db.Column(db.Integer,nullable=False,default=0)    
     img_file=db.Column(db.String(100),nullable=False,default='default.jpg') #THÊM đường dẫn ẢNH

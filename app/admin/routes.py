@@ -102,6 +102,7 @@ def product_form(product_id):
 def add_product():
     name = request.form.get('name', '').strip()
     description = request.form.get('description', '').strip()
+    old_price_str = request.form.get('old-price')
     price_str = request.form.get('price')
     stock_str = request.form.get('stock')
     category_str = request.form.get('category')
@@ -110,6 +111,8 @@ def add_product():
         return "Thiếu dữ liệu bắt buộc", 400
 
     try:
+        if old_price_str: old_price = float(old_price_str)
+        else: old_price = 0
         price = float(price_str)
         stock = int(stock_str)
         category_id = int(category_str)
@@ -132,6 +135,7 @@ def add_product():
     product = Product(
         name=name,
         description=description,
+        old_price=old_price,
         price=price,
         stock=stock,
         category_id=category_id,
@@ -153,6 +157,7 @@ def update_product(product_id):
 
     name = request.form.get('name', '').strip()
     description = request.form.get('description', '').strip()
+    old_price_str = request.form.get('old-price')
     price_str = request.form.get('price')
     stock_str = request.form.get('stock')
     category_str = request.form.get('category')
@@ -161,6 +166,7 @@ def update_product(product_id):
         return "Thiếu dữ liệu bắt buộc", 400
 
     try:
+        product.old_price = float(old_price_str)
         product.price = float(price_str)
         product.stock = int(stock_str)
         product.category_id = int(category_str)
