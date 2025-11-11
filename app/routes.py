@@ -321,7 +321,7 @@ def api_chat():
 
         genai.configure(api_key=api_key)
 
-        model = genai.GenerativeModel('gemini-1.5-flash') 
+        model = genai.GenerativeModel('gemini-2.5-flash') 
 
         data = request.get_json()
         if not data or 'message' not in data:

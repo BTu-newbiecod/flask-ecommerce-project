@@ -296,3 +296,25 @@ def completed_orders():
     ).order_by(Order.order_date.desc()).all()
 
     return render_template('admin/completed_orders.html', orders=orders, month=month, year=year)
+
+@bp.route('/update_order_status/<int:order_id>', methods=['POST'])
+@login_required
+@admin_required
+def update_order_status(order_id):
+    new_status = request.form.get('new_status')
+    order = Order.query.get_or_404(order_id)
+    
+    # Map từ template sang Enum
+    status_map = {
+        'pending': OrderStatus.PENDING,
+        'delivering': OrderStatus.SHIPPING,
+        'completed': OrderStatus.COMPLETED,
+        'cancelled': OrderStatus.CANCELED
+    }
+
+    if new_status in status_map:
+        order.status = status_map[new_status]
+        db.session.commit()
+
+    return redirect(request.referrer or url_for('admin.dashboard'))
+
