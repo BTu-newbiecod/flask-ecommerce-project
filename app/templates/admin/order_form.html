@@ -39,7 +39,7 @@
   <p><strong>Khách hàng:</strong> {{ order.customer.username }}</p>
   <p><strong>Ngày đặt:</strong> {{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
   <p><strong>Trạng thái:</strong> {{ order.status.value }}</p>
-  <p><strong>Tổng tiền:</strong> {{ order.total_amount }} VNĐ</p>
+  <p><strong>Tổng tiền:&nbsp;</strong>{{ "{:,.0f}".format(order.total_amount).replace(",", ".") }}<span class="currency">₫</span></p>
 
   <!-- Chuyển trạng thái -->
   {% if source == 'pending' %}

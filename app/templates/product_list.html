@@ -6,6 +6,10 @@
 {{ super() }}
     <style>
         /* index.html css */
+        body {
+            background-color: #f5f5f5 !important;
+            height: 110vh;
+        }
 
         .col-5th {
             flex: 0 0 20%;
@@ -182,39 +186,42 @@
 
 {% block content %}
     <div class="row justify-content-center mt-3">
-        <div class="col-md-6">
-            <form class="d-flex" action="/search" method="get">
-                <input type="text" name="q" class="form-control me-2" placeholder="Bạn muốn mua gì hôm nay?">
-                <button class="btn btn-dark" type="submit">Tìm kiếm</button>
+        <div class="col-md-6" style="height: 70px; width: 525px;">
+            <form class="d-flex" action="/search" method="get" style="width: 500px;">
+                <input type="text" name="q" class="form-control me-2" placeholder="Bạn muốn mua gì hôm nay?" style="height: 54px;">
+                <button class="btn btn-dark" type="submit" style="width: 135px; text-align: center; padding: 8px 0px;">Tìm kiếm</button>
             </form>
         </div>
     </div>
 
     <div class="filter-section mb-4">
         <form action="/filter" method="get" class="row g-3 align-items-end">
-            <!-- Loại sản phẩm -->
+    
             <div class="col-md-4">
-                <label for="category" class="form-label">Loại sản phẩm</label>
-                <select class="form-select" id="category" name="category" onchange="this.form.submit()">
-                    <option value="">--Tất cả--</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if category_id==cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
+                <div class="d-flex align-items-center border rounded p-2" style="width: 350px;">
+                    <label for="category" class="me-2 mb-0" style="width: 350px; margin-left: 10px;">Loại sản phẩm</label>
+                    <select class="form-select form-select-sm" id="category" name="category" onchange="this.form.submit()" style="width: 300px;">
+                        <option value="">--Tất cả--</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if category_id==cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
 
-            <!-- Sắp xếp theo giá -->
+
             <div class="col-md-3">
-                <label for="sort_type" class="form-label">Sắp xếp theo giá</label>
-                <select class="form-select" id="sort_type" name="sort_type" onchange="this.form.submit()">
-                    <option value="0" {% if sort_type==0 %}selected{% endif %}>--Mặc định--</option>
-                    <option value="1" {% if sort_type==1 %}selected{% endif %}>Giá tăng dần</option>
-                    <option value="-1" {% if sort_type==-1 %}selected{% endif %}>Giá giảm dần</option>
-                </select>
+                <div class="d-flex align-items-center border rounded p-2" style="width: 300px; margin-left: -35px;">
+                    <label for="sort_type" class="me-2 mb-0" style="width: 350px; margin-left: 10px;">Sắp xếp theo giá</label>
+                    <select class="form-select form-select-sm" id="sort_type" name="sort_type" onchange="this.form.submit()" style="width: 175px;">
+                        <option value="0" {% if sort_type==0 %}selected{% endif %}>--Mặc định--</option>
+                        <option value="1" {% if sort_type==1 %}selected{% endif %}>Giá tăng dần</option>
+                        <option value="-1" {% if sort_type==-1 %}selected{% endif %}>Giá giảm dần</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Nút phân trang -->
-            <div class="col-md-5 d-flex align-items-end justify-content-end">
+            <div class="col-md-5 d-flex align-items-end justify-content-end" style="margin-bottom: 5px;">
                 {% set query_params = {'category': category_id, 'sort_type': sort_type} %}
                 <a href="{{ url_for('main.product_list', page=page-1, **query_params) }}" class="btn btn-outline-dark me-2 {% if page <= 1 %}disabled{% endif %}" style="padding: 5px 8px; margin-right: 0px !important; margin-bottom: 3px;">&lt;</a>
                     <span class="mx-2" style="margin-bottom: 9px;">{{ page }}/{{ total_pages }}</span>
@@ -232,7 +239,7 @@
     {% endif %} -->
 
     {% if not products %}
-        <p class="text-center text-muted">Không tìm thấy sản phẩm nào phù hợp.</p>
+        <p class="text-center text-muted" style="margin-bottom: 20px;">Không tìm thấy sản phẩm nào phù hợp.</p>
     {% endif %}
 
     <div class="row">
@@ -271,7 +278,7 @@
     <!-- Nút số trang kiểu liệt kê -->
     {% for p in range(1, total_pages + 1) %}
         <a href="{{ url_for('main.product_list', page=p, **query_params) }}" 
-           class="page-number {% if p == page %}active{% endif %}">
+           class="page-number {% if not products %}disabled{% elif p == page %}active{%endif%}">
             {{ p }}
         </a>
     {% endfor %}

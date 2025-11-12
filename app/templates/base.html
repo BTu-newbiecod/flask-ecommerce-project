@@ -237,10 +237,6 @@
         const toggleBtn = document.getElementById('chatbot-toggle');
         const chatbot = document.getElementById('chatbot-container');
 
-        toggleBtn.addEventListener('click', () => {
-            chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
-        });
-
         document.getElementById('chatbot-send').addEventListener('click', sendMessage);
         document.getElementById('chatbot-input').addEventListener('keypress', e => {
             if (e.key === 'Enter') sendMessage();
@@ -252,6 +248,8 @@
             msgDiv.innerHTML = text;
             document.getElementById('chatbot-messages').appendChild(msgDiv);
             msgDiv.scrollIntoView({ behavior: "smooth" });
+            
+            localStorage.setItem('chatbot_messages', document.getElementById('chatbot-messages').innerHTML);
         }
 
         function sendMessage() {
@@ -271,7 +269,29 @@
             .then(data => appendMessage(data.reply, 'bot'))
             .catch(() => appendMessage('Lỗi kết nối!', 'bot'));
         }
+
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isOpen = localStorage.getItem('chatbot_open') === 'true';
+            chatbot.style.display = isOpen ? 'flex' : 'none';
+
+            const savedMessages = localStorage.getItem('chatbot_messages');
+            if (savedMessages) {
+                const msgContainer = document.getElementById('chatbot-messages');
+                msgContainer.innerHTML = savedMessages;
+           
+                msgContainer.scrollTop = msgContainer.scrollHeight;
+            }
+        });
+
+       
+        toggleBtn.addEventListener('click', () => {
+            const isVisible = chatbot.style.display === 'flex';
+            chatbot.style.display = isVisible ? 'none' : 'flex';
+            localStorage.setItem('chatbot_open', !isVisible);
+        });
     </script>
+
     
     {% block scripts %}
     {% endblock %}

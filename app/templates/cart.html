@@ -197,25 +197,24 @@
         height: 0;
     }
 
-    .btn-purchase
-    {
+    .btn-purchase {
         width: 150px;
         height: 40px;
         display: flex;
         justify-content: center;
         align-items: center; 
         transition: all 0.3s ease;
-        background-color: #424242;     
-        color: #e1e1e1;;   
-        cursor: pointer;      
-        font-size: 1rem;  
-        margin-right: 25px;
-        margin-left: auto;
+        background-color: #686868;
+        color: #ffffff; 
+        cursor: pointer;
+        font-size: 1rem;
+        border: none;
+        border-radius: 6px;
+        margin-right: -10px;
     }
 
-    .btn-purchase:hover
-    {
-        background-color: #000000; 
+    .btn-purchase:hover {
+        background-color: #3e3e3e;
     }
 
     #checkout-summary {
@@ -243,10 +242,10 @@
 
 {% block content %}
     <div class="row justify-content-center mt-3">
-        <div class="col-md-6">
-            <form class="d-flex" action="/search" method="get">
-                <input type="text" name="q" class="form-control me-2" placeholder="Bạn muốn mua gì hôm nay?">
-                <button class="btn btn-dark" type="submit">Tìm kiếm</button>
+        <div class="col-md-6" style="height: 70px; width: 525px;">
+            <form class="d-flex" action="/search" method="get" style="width: 500px;">
+                <input type="text" name="q" class="form-control me-2" placeholder="Bạn muốn mua gì hôm nay?" style="height: 54px;">
+                <button class="btn btn-dark" type="submit" style="width: 135px; text-align: center; padding: 8px 0px;">Tìm kiếm</button>
             </form>
         </div>
     </div>
@@ -307,7 +306,7 @@
             </span>
         </div>
         
-        <button id="checkout-btn" class="btn-purchase" style="font-size: large; margin-left: 0;">
+        <button id="checkout-btn" class="btn-purchase" style="font-size: large;">
             Thanh toán
         </button>
         </div>

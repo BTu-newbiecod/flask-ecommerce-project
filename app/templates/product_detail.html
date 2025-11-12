@@ -7,16 +7,17 @@
 <style>
     body {
         background-color: #f5f5f5 !important;
+        height: 110vh;
     }
 
     .mt-4 {
-        margin-top: 0rem !important;
+        margin-top: 1rem !important;
     }
 
     .product-page {
         display: flex;
         justify-content: center;
-        margin-top: 0px !important;
+        margin-top: 1px !important;
         padding: 0rem 0;
         min-height: calc(100vh - 200px);
         background-color: #f5f5f5;
@@ -65,7 +66,9 @@
         color: #6c757d;
         text-decoration: line-through;
         font-size: 20px;
-        margin-left: 15px;
+        margin-left: 20px;
+        position: relative;
+        top: -3.5px;
     }
 
     .product-price {
@@ -74,8 +77,9 @@
         font-weight: 600;
         margin: 1rem 0;
         padding: 5px 0px 5px 20px;
-        background-color: #ffecec;
+        background-color: #f6f6f6;
         margin-bottom: 3rem !important;
+        width: 475px;
     }
 
 
@@ -223,7 +227,7 @@
 {% block content %}
 <div class="product-page">
     <div class="product-wrapper">
-        <div class="breadcrumb mb-3">
+        <div class="breadcrumb mb-3" style="margin-bottom: 1.5rem !important;">
             <a href="{{ url_for('main.product_list') }}">Trang chủ </a> &nbsp;>&nbsp;
             <a href="{{ url_for('main.filter_product') }}?category={{ product.category.id }}&min_price=&max_price=">{{  product.category.name }}</a>  &nbsp;>&nbsp;
             <span>{{ product.name }}</span>
@@ -234,10 +238,11 @@
             
             <div class="product-info">
                 <h2>{{ product.name }}</h2>
-                <span class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span></span>
-                {% if product.old_price %}
-                    <span class="old-price">{{ "{:,.0f}".format(product.old_price).replace(",", ".") }}<span class="currency">₫</span></span>
-                {% endif %}
+                <div class="product-price">{{ "{:,.0f}".format(product.price).replace(",", ".") }}<span class="currency">₫</span>
+                    {% if product.old_price %}
+                        <span class="old-price">{{ "{:,.0f}".format(product.old_price).replace(",", ".") }}<span class="currency">₫</span></span>
+                    {% endif %}
+                </div>
                 <p class="product-description">
                     <span class="desc-label">Mô tả sản phẩm:</span>
                     <span class="desc-text">{{ product.description or "Chưa có mô tả cho sản phẩm này." }}</span>
