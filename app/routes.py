@@ -14,7 +14,7 @@ from app.models import Product, CartItem, Order, OrderItem,Address
 
 from app import db
 
-from app import db                
+from math import ceil           
 
 from .forms import EditProfileForm, ChangePasswordForm,AddressForm
 import re 
@@ -33,9 +33,40 @@ def index():
 # 🛒 Trang danh sách sản phẩm (được tách riêng)
 @bp.route('/product_list')
 def product_list():
-    products = Product.query.all()
+    # Lấy page hiện tại từ query string (mặc định 1)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # số sản phẩm mỗi trang
+
+    # Lấy filter từ query string (nếu có)
+    category_id = request.args.get('category', type=int)
+    sort_type = request.args.get('sort_type', type=int)
+
+    # Query cơ bản
+    query = Product.query
+    if category_id:
+        query = query.filter(Product.category_id == category_id)
+
+    if sort_type == 1:
+        query = query.order_by(Product.price.asc())
+    elif sort_type == -1:
+        query = query.order_by(Product.price.desc())
+    else:
+        query = query.order_by(Product.id.asc())
+
+    total_products = query.count()
+    total_pages = ceil(total_products / per_page)
+
+    products = query.offset((page - 1) * per_page).limit(per_page).all()
     categories = Category.query.all()
-    return render_template("product_list.html", products=products, categories=categories)
+
+    return render_template('product_list.html', 
+                           products=products, 
+                           categories=categories, 
+                           page=page, 
+                           total_pages=total_pages,
+                           category_id=category_id,
+                           sort_type=sort_type)
+
 
 
 # 📄 Chi tiết sản phẩm
@@ -307,23 +338,52 @@ def search_product():
 
 
 # Lọc sản phẩm theo danh mục / giá
-@bp.route('/filter', methods=['GET'])
+@bp.route("/filter")
 def filter_product():
-    category_id = request.args.get('category', type=int)
-    min_price = request.args.get('min_price', type=float)
-    max_price = request.args.get('max_price', type=float)
-
-    query = Product.query
+    category_id = request.args.get('category')
     if category_id:
-        query = query.filter(Product.category_id == category_id)
-    if min_price is not None:
-        query = query.filter(Product.price >= min_price)
-    if max_price is not None:
-        query = query.filter(Product.price <= max_price)
+        try:
+            category_id = int(category_id)
+        except ValueError:
+            category_id = None
+    else:
+        category_id = None
+    sort_type = int(request.args.get('sort_type', 0))
 
-    products = query.all()
+    # Lọc products theo category + sort_type
+    products_query = Product.query
+    if category_id:
+        products_query = products_query.filter_by(category_id=category_id)
+    
+    if sort_type == 1:
+        products_query = products_query.order_by(Product.price.asc())
+    elif sort_type == -1:
+        products_query = products_query.order_by(Product.price.desc())
+
+    products_list = products_query.all()
     categories = Category.query.all()
-    return render_template('product_list.html', products=products, categories=categories)
+
+    # Phân trang
+    page = int(request.args.get('page', 1))
+    per_page = 10
+    total_pages = ceil(len(products_list) / per_page) or 1
+
+    # Lấy đúng 10 sản phẩm của trang hiện tại
+    start = (page - 1) * per_page
+    end = start + per_page
+    products = products_list[start:end]
+
+    return render_template(
+        "product_list.html",
+        products=products,
+        categories=categories,
+        category_id=category_id,
+        sort_type=sort_type,
+        page=page,
+        total_pages=total_pages,
+        query=None
+    )
+
 
 #TRANG HỒ SƠ
 @bp.route('/profile', methods=['GET', 'POST'])

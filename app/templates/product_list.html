@@ -142,6 +142,40 @@
             padding: 8px 10px;
         }
 
+
+        .page-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            margin: 0 5px;
+            border: none;         
+            background: none;    
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: none;   
+        }
+
+        .page-number:hover {
+            background: none;
+        }
+
+        .page-number.active {
+            font-weight: 600;
+            color: white;
+            background-color: #333;
+            border-radius: 5px;
+        }
+
+        .page-number.disabled {
+            pointer-events: none; 
+            opacity: 0.25;       
+            cursor: default;
+        }
+
         /* end index.html css */
     </style>
 {% endblock %}
@@ -158,37 +192,47 @@
 
     <div class="filter-section mb-4">
         <form action="/filter" method="get" class="row g-3 align-items-end">
+            <!-- Loại sản phẩm -->
             <div class="col-md-4">
                 <label for="category" class="form-label">Loại sản phẩm</label>
-                <select class="form-select" id="category" name="category">
-                    <option value="">Tất cả</option>
+                <select class="form-select" id="category" name="category" onchange="this.form.submit()">
+                    <option value="">--Tất cả--</option>
                     {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        <option value="{{ cat.id }}" {% if category_id==cat.id %}selected{% endif %}>{{ cat.name }}</option>
                     {% endfor %}
                 </select>
             </div>
 
+            <!-- Sắp xếp theo giá -->
             <div class="col-md-3">
-                <label for="min_price" class="form-label">Giá từ</label>
-                <input type="number" class="form-control" id="min_price" name="min_price" min="0" placeholder="Giá tối thiểu">
+                <label for="sort_type" class="form-label">Sắp xếp theo giá</label>
+                <select class="form-select" id="sort_type" name="sort_type" onchange="this.form.submit()">
+                    <option value="0" {% if sort_type==0 %}selected{% endif %}>--Mặc định--</option>
+                    <option value="1" {% if sort_type==1 %}selected{% endif %}>Giá tăng dần</option>
+                    <option value="-1" {% if sort_type==-1 %}selected{% endif %}>Giá giảm dần</option>
+                </select>
             </div>
 
-            <div class="col-md-3">
-                <label for="max_price" class="form-label">Đến</label>
-                <input type="number" class="form-control" id="max_price" name="max_price" min="0" placeholder="Giá tối đa">
-            </div>
-
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-dark w-100">Lọc</button>
+            <!-- Nút phân trang -->
+            <div class="col-md-5 d-flex align-items-end justify-content-end">
+                {% set query_params = {'category': category_id, 'sort_type': sort_type} %}
+                <a href="{{ url_for('main.product_list', page=page-1, **query_params) }}" class="btn btn-outline-dark me-2 {% if page <= 1 %}disabled{% endif %}" style="padding: 5px 8px; margin-right: 0px !important; margin-bottom: 3px;">&lt;</a>
+                    <span class="mx-2" style="margin-bottom: 9px;">{{ page }}/{{ total_pages }}</span>
+                <a href="{{ url_for('main.product_list', page=page+1, **query_params) }}" class="btn btn-outline-dark ms-2 {% if page >= total_pages %}disabled{% endif %}" style="padding: 5px 8px; margin-left: 0px !important; margin-bottom: 3px;">&gt;</a>
             </div>
         </form>
     </div>
 
-    {% if query %}
+
+    <!-- {% if query %}
         <h4 class="mb-4">Kết quả tìm kiếm cho: "{{ query }}"</h4>
             {% if not products %}
                 <p class="text-muted text-center">Không tìm thấy sản phẩm nào phù hợp.</p>
         {% endif %}
+    {% endif %} -->
+
+    {% if not products %}
+        <p class="text-center text-muted">Không tìm thấy sản phẩm nào phù hợp.</p>
     {% endif %}
 
     <div class="row">
@@ -216,7 +260,28 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination -->
+<div class="col-md-12 d-flex justify-content-center align-items-center mt-3">
+    {% set query_params = {'category': category_id, 'sort_type': sort_type} %}
+
+    <!-- Nút Previous -->
+    <a href="{{ url_for('main.product_list', page=page-1, **query_params) }}" class="page-number {% if page <= 1 %}disabled{% endif %}">&lt;</a>
+
+    <!-- Nút số trang kiểu liệt kê -->
+    {% for p in range(1, total_pages + 1) %}
+        <a href="{{ url_for('main.product_list', page=p, **query_params) }}" 
+           class="page-number {% if p == page %}active{% endif %}">
+            {{ p }}
+        </a>
+    {% endfor %}
+
+    <!-- Nút Next -->
+    <a href="{{ url_for('main.product_list', page=page+1, **query_params) }}" class="page-number {% if page >= total_pages %}disabled{% endif %}">&gt;</a>
+</div>
 {% endblock %}
+
+
 
 {% block scripts %}
     <!-- Tùy chỉnh JS -->
