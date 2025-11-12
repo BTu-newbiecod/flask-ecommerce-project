@@ -290,6 +290,16 @@
             chatbot.style.display = isVisible ? 'none' : 'flex';
             localStorage.setItem('chatbot_open', !isVisible);
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutLink = document.querySelector('a[href="{{ url_for('auth.logout') }}"]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', () => {
+                    localStorage.removeItem('chatbot_messages');
+                    localStorage.removeItem('chatbot_open');
+                });
+            }
+        });
     </script>
 
     
