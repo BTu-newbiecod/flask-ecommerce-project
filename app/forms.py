@@ -74,3 +74,12 @@ class AddressForm(FlaskForm):
     is_default = BooleanField('Đặt làm địa chỉ mặc định')
     
     submit = SubmitField('Lưu Địa Chỉ')
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Gửi yêu cầu reset')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Mật khẩu mới', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Xác nhận mật khẩu', validators=[DataRequired(), EqualTo('password', message='Mật khẩu không khớp.')])
+    submit = SubmitField('Đặt lại mật khẩu')

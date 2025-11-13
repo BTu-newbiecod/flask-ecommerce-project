@@ -3,6 +3,8 @@ import enum
 from sqlalchemy import ForeignKey
 from app import db
 from flask_login import UserMixin
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
 
 class User(db.Model, UserMixin):
     id=db.Column(db.Integer,primary_key=True)
@@ -15,6 +17,19 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password_to_check):
         return self.password == password_to_check
+
+    def get_reset_token(self, expires_sec=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id}, salt='password-reset-salt')
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, salt='password-reset-salt', max_age=expires_sec)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
 
     #them tham chieu nguoc
     orders=db.relationship('Order',backref='customer',lazy='dynamic')
