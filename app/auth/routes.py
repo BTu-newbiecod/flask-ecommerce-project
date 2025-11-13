@@ -46,7 +46,7 @@ def login():
         if user.email == "admin@shop.com":
             return redirect(url_for('admin.dashboard'))  
         else:
-            return redirect(url_for('main.index'))  
+            return redirect(url_for('main.product_list'))  
 
     return render_template('auth/login.html',form=form)
 
