@@ -15,10 +15,13 @@
       top: -3px;           
       margin-left: 2px;
   }
-  .center-text
-  {
+  .center-text {
     text-align: center;
-    width: 250px;
+  }
+  .address-text {
+    text-align: center;
+    white-space: normal;
+    word-wrap: break-word;
   }
 </style>
 {% endblock %}
@@ -33,27 +36,51 @@
     </a>
   </div>  
   
-  
   {% if orders %}
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
-        <th class="center-text" style="width: 100px;">ID</th>
-        <th class="center-text">Tổng tiền</th>
-        <th class="center-text">Ngày đặt</th>
-        <th class="center-text" style="width: 150px;">Chi tiết</th>
+        <th class="center-text" style="width: 60px;">ID</th>
+        <th class="center-text" style="width: 150px;">Tên người nhận</th>
+        <th class="center-text" style="width: 120px;">Số điện thoại</th>
+        <th class="center-text" style="width: 250px;">Địa chỉ</th>
+        <th class="center-text" style="width: 120px;">Tổng tiền</th>
+        <th class="center-text" style="width: 100px;">Chi tiết</th>
       </tr>
     </thead>
     <tbody>
       {% for order in orders %}
       <tr>
-        <td class="center-text" style="width: 100px;">{{ order.id }}</td>
-        <td class="center-text">{{ "{:,.0f}".format(order.total_amount).replace(",", ".") }}<span class="currency">₫</span></td>
-        <td class="center-text">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
-        <td class="center-text" style="width: 150px;">
+        <td class="center-text">{{ order.id }}</td>
+        <td class="center-text">
+          {% if order.shipping_address %}
+            {{ order.shipping_address.recipient_name }}
+          {% else %}
+            Trống
+          {% endif %}
+        </td>
+        <td class="center-text">
+          {% if order.shipping_address %}
+            {{ order.shipping_address.phone_number }}
+          {% else %}
+            Trống
+          {% endif %}
+        </td>
+        <td class="address-text">
+          {% if order.shipping_address %}
+            {{ order.shipping_address.street_address }}, {{ order.shipping_address.city }}
+          {% else %}
+            Trống
+          {% endif %}
+        </td>
+        <td class="center-text">
+          {{ "{:,.0f}".format(order.total_amount).replace(",", ".") }}
+          <span class="currency">₫</span>
+        </td>
+        <td class="center-text">
           <a href="{{ url_for('main.my_order_form', order_id=order.id) }}" class="btn btn-sm btn-secondary">
             Xem
-          </a>    
+          </a>
         </td>
       </tr>
       {% endfor %}
