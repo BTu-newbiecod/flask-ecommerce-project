@@ -21,7 +21,7 @@ import re
 
 bp = Blueprint('main', __name__)
 
-# 🏠 Trang chủ mới (index)
+# Trang chủ mới (index)
 @bp.route('/')
 @bp.route('/index')
 def index():
@@ -327,14 +327,24 @@ def search_product():
     normal_query = remove_accents(query)
 
     all_products = Product.query.all()
-    products = [
+    searched_products = [
         p for p in all_products 
         if normal_query in remove_accents(p.name.lower())
         or normal_query in remove_accents((p.description or '').lower())
     ]
     categories = Category.query.all()
 
-    return render_template('product_list.html', products=products, query=query, categories=categories)
+    # Phân trang
+    page = int(request.args.get('page', 1))
+    per_page = 10
+    total_pages = ceil(len(searched_products) / per_page) or 1
+
+    # Lấy đúng 10 sản phẩm của trang hiện tại
+    start = (page - 1) * per_page
+    end = start + per_page
+    products = searched_products[start:end]
+
+    return render_template('product_list.html', products=products, query=query, categories=categories, page=page, total_pages=total_pages)
 
 
 # Lọc sản phẩm theo danh mục / giá
