@@ -243,9 +243,19 @@ def delivery_orders():
 def order_form(order_id):
     order = Order.query.get_or_404(order_id)
     order_items = order.items
-    # Lấy biến source từ query string ?source=pending hoặc ?source=delivering
+
     source = request.args.get('source', None)
-    return render_template('admin/order_form.html', order=order, order_items=order_items, source=source)
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+
+    return render_template(
+        'admin/order_form.html',
+        order=order,
+        order_items=order_items,
+        source=source,
+        month=month,
+        year=year
+    )
 
 @bp.route('/reports')
 @login_required
