@@ -231,16 +231,16 @@
     </div>
 
 
-    <!-- {% if query %}
+    {% if query %}
         <h4 class="mb-4">Kết quả tìm kiếm cho: "{{ query }}"</h4>
             {% if not products %}
                 <p class="text-muted text-center">Không tìm thấy sản phẩm nào phù hợp.</p>
         {% endif %}
-    {% endif %} -->
+    {% endif %} 
 
-    {% if not products %}
+    <!-- {% if not products %}
         <p class="text-center text-muted" style="margin-bottom: 20px;">Không tìm thấy sản phẩm nào phù hợp.</p>
-    {% endif %}
+    {% endif %} -->
 
     <div class="row">
         {% for product in products%}
