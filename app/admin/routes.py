@@ -127,7 +127,7 @@ def add_product():
         # thêm UUID để tránh trùng tên
         ext = os.path.splitext(original_name)[1]
         unique_name = f"{uuid.uuid4().hex}{ext}"
-        save_path = os.path.join(current_app.root_path, 'static/images/products', unique_name)
+        save_path = os.path.join(current_app.root_path, 'static/assets/images/products', unique_name)
         img_file.save(save_path)
         filename = unique_name
 
@@ -180,7 +180,7 @@ def update_product(product_id):
     img_file = request.files.get('img_file')
     if img_file and img_file.filename:
         filename = secure_filename(img_file.filename)
-        path = os.path.join(current_app.root_path, 'static/images/products', filename)
+        path = os.path.join(current_app.root_path, 'static/assets/images/products', filename)
         img_file.save(path)
         product.img_file = filename
 
@@ -204,7 +204,7 @@ def delete_product(product_id):
 
     try:
         if product.img_file:
-            img_path = os.path.join(current_app.root_path, 'static/images/products', product.img_file)
+            img_path = os.path.join(current_app.root_path, 'static/assets/images/products', product.img_file)
             if os.path.exists(img_path):
                 os.remove(img_path)
                 print(f"Đã xóa file ảnh: {img_path}")
