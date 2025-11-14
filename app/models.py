@@ -102,7 +102,6 @@ class Address(db.Model):
     city = db.Column(db.String(100), nullable=False)
     is_default = db.Column(db.Boolean, default=False, nullable=False)
 
-  
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_address_user'), nullable=False)
     # ---------------------
 

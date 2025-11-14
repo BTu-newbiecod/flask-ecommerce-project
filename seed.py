@@ -54,20 +54,20 @@ with app.app_context():
     ])
     db.session.commit()
 
-    order1 = Order(status=OrderStatus.COMPLETED, total_amount=630000, customer=user2, order_date=datetime.utcnow() - timedelta(days=5))
-    db.session.add(order1)
-    db.session.commit()
+    # order1 = Order(status=OrderStatus.COMPLETED, total_amount=630000, customer=user2, order_date=datetime.utcnow() - timedelta(days=5))
+    # db.session.add(order1) 
+    # db.session.commit()
 
-    order_item1 = OrderItem(order=order1, product=p1, quantity=1, price_per_item=180000)
-    order_item2 = OrderItem(order=order1, product=p2, quantity=1, price_per_item=450000)
-    db.session.add_all([order_item1, order_item2])
+    # order_item1 = OrderItem(order=order1, product=p1, quantity=1, price_per_item=180000)
+    # order_item2 = OrderItem(order=order1, product=p2, quantity=1, price_per_item=450000)
+    # db.session.add_all([order_item1, order_item2])
 
-    order2 = Order(status=OrderStatus.SHIPPING, total_amount=280000, customer=user2)
-    db.session.add(order2)
-    db.session.commit()
+    # order2 = Order(status=OrderStatus.SHIPPING, total_amount=280000, customer=user2)
+    # db.session.add(order2)
+    # db.session.commit()
 
-    order_item3 = OrderItem(order=order2, product=p4, quantity=1, price_per_item=280000)
-    db.session.add(order_item3)
+    # order_item3 = OrderItem(order=order2, product=p4, quantity=1, price_per_item=280000)
+    # db.session.add(order_item3)
 
     promo1 = Promotion(code='TET2026', discount_percent=20.0, end_date=datetime.utcnow() + timedelta(days=30))
     promo2 = Promotion(code='NEWYEAR001', discount_percent=10.0, end_date=datetime.utcnow() + timedelta(days=90))
