@@ -29,6 +29,10 @@ def create_app(config_class=Config):
         from app.admin import bp as admin_bp #DANGKY BLUEPRINT CHO ADMIN
         app.register_blueprint(admin_bp, url_prefix='/admin')
 
+        from .chatbot import bp as chatbot_bp, init_model
+        app.register_blueprint(chatbot_bp)  
+        init_model(app.config.get('GEMINI_API_KEY'))
+
         return app
 
 from app import models

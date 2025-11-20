@@ -53,6 +53,7 @@ def dashboard():
         shipping_orders=shipping_orders,
         product_counts=product_counts
     )
+
 #Xem danh sach
 @bp.route('/products')
 @admin_required
