@@ -59,7 +59,6 @@ def product_list():
                            sort_type=sort_type)
 
 
-
 # Chi tiết sản phẩm
 @bp.route('/product-<int:id>-<string:slug>')
 def product_detail(id, slug):

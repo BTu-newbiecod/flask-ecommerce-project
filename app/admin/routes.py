@@ -10,7 +10,6 @@ import os
 import uuid
 import unicodedata
 
-
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -334,4 +333,3 @@ def update_order_status(order_id):
         db.session.commit()
 
     return redirect(request.referrer or url_for('admin.dashboard'))
-

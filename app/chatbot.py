@@ -48,8 +48,7 @@ STORE_CONTEXT = """
     - Khi người dùng gửi tin nhắn với mục đích xin chào, chỉ cần chào lại và hỏi xem khách hàng có cần giúp đỡ gì từ Pypy Store không là được, không cần giới thiệu sản phẩm.
 
     **Quy tắc 6 (Category):**
-    - Nếu khách hàng yêu cầu bạn gợi ý 1 loại hàng, bạn có thể tạo 1 URL = "/filter?category={stt}&sort_type=0"
-    với stt là 
+    - Nếu khách hàng yêu cầu bạn gợi ý 1 loại hàng, bạn có thể tạo 1 URL = "/filter?category={stt}&sort_type=0" với {stt} là 
         1 = 'Áo Thun'
         2 = 'Quần Jean'
         3 = 'Áo Sơ Mi'
@@ -67,6 +66,7 @@ STORE_CONTEXT = """
 
     **Quy tắc 7 (Giá):**
     - Khi người dùng có đề cập đến giá cả, hãy chú ý so sánh giá của khách hàng với giá của sản phẩm (Product.price) để đưa ra sản phẩm thích hợp.
+    - Khi có giá cũ(Product.old_price != null hoặc > 0) thì hãy đề cập đến việc sản phẩm đang trong thời gian khuyến mãi.
         
     Hãy bắt đầu. Câu hỏi của khách hàng là: "{user_message}" Câu trả lời của bạn (phải là HTML nếu có link):
     """
@@ -109,7 +109,7 @@ def api_chat():
             for p in products:
                 slug = slugify(p.name)
                 link = url_for('main.product_detail', id=p.id, slug=slug, _external=True)
-                product_context += f"- Tên: {p.name}, Mô tả: {p.description}, Giá: {p.price}, Link: {link}\n"
+                product_context += f"- Tên: {p.name}, Mô tả: {p.description}, Giá: {p.price}, Giá cũ: {p.old_price}, Link: {link}\n"
         else:
             product_context = "[Không tìm thấy sản phẩm nào từ CSDL.]"
 
